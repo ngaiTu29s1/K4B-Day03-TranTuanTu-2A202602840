@@ -339,66 +339,98 @@ HTML_CONTENT = r"""<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- RIGHT COL: REACT WATERFALL TRACE & FASTPASS TICKET (5 Cols) -->
-      <div class="lg:col-span-5 flex flex-col gap-4">
+      <!-- RIGHT COL: OBSERVABILITY & REACT ENGINE (TABS) (5 Cols) -->
+      <div class="lg:col-span-5 bg-gray-900 border border-gray-800 rounded-2xl flex flex-col overflow-hidden shadow-xl min-h-[520px]">
         
-        <!-- FASTPASS E-TICKET CARD (Hiện ra khi có booking) -->
-        <div id="fastpassTicketContainer" class="hidden">
-          <div class="bg-gradient-to-br from-blue-900/60 via-gray-900 to-indigo-950/60 border-2 border-blue-500/60 rounded-2xl p-4 shadow-2xl glow-card relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-28 h-28 bg-blue-500/20 rounded-full blur-2xl"></div>
-            
-            <div class="flex items-center justify-between border-b border-gray-700/60 pb-3 mb-3">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
-                <span class="font-bold text-sm uppercase tracking-wider text-blue-300">VinLab FastPass E-Ticket</span>
-              </div>
-              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                Ưu tiên làn 1 (30 giây)
-              </span>
-            </div>
+        <!-- TABS BAR -->
+        <div class="p-2.5 bg-gray-900/95 border-b border-gray-800 flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1 bg-gray-950 p-1 rounded-xl border border-gray-800/80">
+            <button id="tabBtnReact" onclick="switchRightTab('react')" class="px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-md">
+              <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+              <span>ReAct Steps</span>
+              <span id="tabBadgeReact" class="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-800 text-blue-100 hidden">0</span>
+            </button>
+            <button id="tabBtnWaterfall" onclick="switchRightTab('waterfall')" class="px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-gray-200 flex items-center gap-1.5 transition">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+              <span>Waterfall Log</span>
+              <span id="traceCounter" class="text-[10px] text-gray-500 font-mono">0</span>
+            </button>
+            <button id="tabBtnTicket" onclick="switchRightTab('ticket')" class="px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-gray-200 flex items-center gap-1.5 transition">
+              <i data-lucide="ticket" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>FastPass QR</span>
+              <span id="ticketBadgeIndicator" class="w-2 h-2 rounded-full bg-emerald-400 hidden animate-ping"></span>
+            </button>
+          </div>
+          <button onclick="clearTraceLogs()" title="Xóa màn hình quan sát" class="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 transition text-[11px] flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
 
-            <div class="flex gap-4 items-center">
-              <div id="qrcode" class="p-2 bg-white rounded-xl shadow-md flex-shrink-0 flex items-center justify-center min-w-[95px] min-h-[95px]"></div>
-              <div class="text-xs space-y-1.5 flex-grow">
-                <div>
-                  <span class="text-gray-400">Mã FastPass:</span>
-                  <p id="ticketCode" class="font-mono font-bold text-sm text-yellow-300"></p>
-                </div>
-                <div>
-                  <span class="text-gray-400">Học viên:</span>
-                  <p id="ticketStudent" class="font-semibold text-gray-100"></p>
-                </div>
-                <div>
-                  <span class="text-gray-400">Bếp & Giờ nhận:</span>
-                  <p id="ticketKitchenTime" class="font-medium text-emerald-300"></p>
-                </div>
-                <div>
-                  <span class="text-gray-400">Hình thức:</span>
-                  <p id="ticketDining" class="text-gray-200"></p>
-                </div>
-              </div>
-            </div>
+        <!-- TAB CONTENT 1: VISUAL REACT STEPS (Thought ➔ Action ➔ Observation) -->
+        <div id="tabContentReact" class="flex-grow p-4 overflow-y-auto space-y-3 max-h-[580px] text-xs">
+          <div class="text-center text-gray-500 py-16 text-xs">
+            <i data-lucide="cpu" class="w-10 h-10 mx-auto mb-2 opacity-30 text-blue-400"></i>
+            Chưa có phiên suy luận nào.<br>Gửi một câu hỏi để theo dõi trực quan chuỗi Thought ➔ Action ➔ Observation!
+          </div>
+        </div>
 
-            <div class="mt-3 pt-3 border-t border-gray-800 text-[11px] text-blue-200 bg-blue-950/40 p-2.5 rounded-lg border border-blue-800/40">
-              <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1 text-blue-400"></i>
-              <span id="ticketInstructions">Xuất trình mã này tại quầy ưu tiên Fast-Track để nhận khay cơm trong 30 giây!</span>
+        <!-- TAB CONTENT 2: WATERFALL TRACE LOGS -->
+        <div id="tabContentWaterfall" class="hidden flex-grow p-3 overflow-y-auto space-y-2.5 max-h-[580px] text-xs">
+          <div id="waterfallLogs" class="space-y-2.5">
+            <div class="text-center text-gray-500 py-16 text-xs">
+              <i data-lucide="activity" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
+              Chưa có sự kiện Waterfall.<br>Các sự kiện chi tiết của Tool MCP sẽ hiển thị tại đây.
             </div>
           </div>
         </div>
 
-        <!-- WATERFALL TRACE LOGS -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl flex flex-col flex-grow overflow-hidden">
-          <div class="p-3 bg-gray-900/90 border-b border-gray-800 flex items-center justify-between">
-            <h2 class="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
-              <i data-lucide="git-commit" class="w-4 h-4 text-blue-400"></i> Waterfall Trace Log (ReAct)
-            </h2>
-            <span id="traceCounter" class="text-[11px] text-gray-500">0 sự kiện</span>
+        <!-- TAB CONTENT 3: FASTPASS E-TICKET -->
+        <div id="tabContentTicket" class="hidden flex-grow p-4 overflow-y-auto max-h-[580px]">
+          <div id="fastpassTicketEmpty" class="text-center text-gray-500 py-16 text-xs">
+            <i data-lucide="ticket" class="w-10 h-10 mx-auto mb-2 opacity-30 text-emerald-400"></i>
+            Chưa có E-Ticket FastPass nào được phát hành.<br>Yêu cầu trợ lý đặt suất ăn để nhận mã QR nhận đồ nhanh trong 30 giây!
           </div>
 
-          <div id="waterfallLogs" class="p-3 overflow-y-auto space-y-2.5 max-h-[520px] text-xs">
-            <div class="text-center text-gray-500 py-12 text-xs">
-              <i data-lucide="activity" class="w-8 h-8 mx-auto mb-2 opacity-30"></i>
-              Chưa có phiên suy luận nào.<br>Hãy gửi một yêu cầu để xem chuỗi ReAct Waterfall.
+          <div id="fastpassTicketContainer" class="hidden">
+            <div class="bg-gradient-to-br from-blue-900/60 via-gray-900 to-indigo-950/60 border-2 border-blue-500/60 rounded-2xl p-4 shadow-2xl glow-card relative overflow-hidden">
+              <div class="absolute -right-8 -top-8 w-28 h-28 bg-blue-500/20 rounded-full blur-2xl"></div>
+              
+              <div class="flex items-center justify-between border-b border-gray-700/60 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span class="font-bold text-sm uppercase tracking-wider text-blue-300">VinLab FastPass E-Ticket</span>
+                </div>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  Ưu tiên làn 1 (30 giây)
+                </span>
+              </div>
+
+              <div class="flex gap-4 items-center">
+                <div id="qrcode" class="p-2 bg-white rounded-xl shadow-md flex-shrink-0 flex items-center justify-center min-w-[95px] min-h-[95px]"></div>
+                <div class="text-xs space-y-1.5 flex-grow">
+                  <div>
+                    <span class="text-gray-400">Mã FastPass:</span>
+                    <p id="ticketCode" class="font-mono font-bold text-sm text-yellow-300"></p>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">Học viên:</span>
+                    <p id="ticketStudent" class="font-semibold text-gray-100"></p>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">Bếp & Giờ nhận:</span>
+                    <p id="ticketKitchenTime" class="font-medium text-emerald-300"></p>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">Hình thức & Món:</span>
+                    <p id="ticketDining" class="text-gray-200"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-t border-gray-800 text-[11px] text-blue-200 bg-blue-950/40 p-2.5 rounded-lg border border-blue-800/40">
+                <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1 text-blue-400"></i>
+                <span id="ticketInstructions">Xuất trình mã này tại quầy ưu tiên Fast-Track để nhận khay cơm trong 30 giây!</span>
+              </div>
             </div>
           </div>
         </div>
@@ -649,62 +681,33 @@ HTML_CONTENT = r"""<!DOCTYPE html>
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: query, provider: p, model: m, api_key: k })
+          body: JSON.stringify({ query: query, provider: p, model: m, api_key: k, student_id: currentStudentId })
         });
 
         const data = await response.json();
         document.getElementById(loadingId)?.remove();
-
-        // Render Waterfall Trace on the right
-        renderWaterfallTrace(data.trace_logs || []);
 
         // Calculate total latency
         let totalLatency = 0;
         (data.trace_logs || []).forEach(l => { totalLatency += (l.latency_ms || 0); });
         totalLatency = Math.round(totalLatency);
 
-        // Build Visual ReAct Reasoning Accordion
-        let reasoningStepsHtml = "";
-        (data.trace_logs || []).forEach((l, idx) => {
-          if (l.action_type === "TOOL_EXECUTION") {
-            reasoningStepsHtml += `
-              <div class="p-2 bg-gray-900 border border-yellow-500/30 rounded-lg space-y-1 my-1.5">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span class="font-bold text-yellow-400 flex items-center gap-1">
-                    <i data-lucide="wrench" class="w-3 h-3"></i> Bước ${l.step}: Action ➔ ${l.tool_name}
-                  </span>
-                  <span class="font-mono text-gray-500">${l.latency_ms || 0} ms</span>
-                </div>
-                <div class="text-[10px] font-mono text-gray-300 bg-gray-950 p-1.5 rounded">
-                  Tham số: ${JSON.stringify(l.arguments || {})}
-                </div>
-                <div class="text-[10px] font-mono text-emerald-300 bg-gray-950/80 p-1.5 rounded truncate">
-                  Observation: ${JSON.stringify(l.observation || {})}
-                </div>
-              </div>
-            `;
-          } else if (l.action_type === "FINAL_ANSWER" && l.thought) {
-            reasoningStepsHtml += `
-              <div class="p-2 bg-gray-900 border border-blue-500/30 rounded-lg space-y-1 my-1.5">
-                <span class="font-bold text-blue-400 flex items-center gap-1 text-[11px]">
-                  <i data-lucide="brain" class="w-3 h-3"></i> Bước ${l.step}: Thought (Suy luận)
-                </span>
-                <p class="text-[10px] text-gray-300">${l.thought}</p>
-              </div>
-            `;
-          }
-        });
+        // Render ReAct Steps in Right Tab 1
+        renderReactSteps(data.trace_logs || []);
 
-        // Render Final Answer WITH METADATA TAGS AND REASONING ACCORDION
+        // Render Waterfall Trace in Right Tab 2
+        renderWaterfallTrace(data.trace_logs || []);
+
+        // Render Final Answer IN CHAT BUBBLE (Clean, conversational, no accordion)
         const finalAnswer = data.final_answer || "Đã hoàn thành xử lý.";
         chatBox.innerHTML += `
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center flex-shrink-0 text-white shadow-md">
               <i data-lucide="bot" class="w-4 h-4"></i>
             </div>
-            <div class="bg-gray-800/95 border border-gray-700 rounded-2xl rounded-tl-none p-4 text-sm text-gray-100 max-w-xl shadow-lg">
+            <div class="bg-gray-800/95 border border-gray-700 rounded-2xl rounded-tl-none p-4 text-sm text-gray-100 max-w-xl shadow-lg space-y-2.5">
               <!-- METADATA BADGE -->
-              <div class="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-gray-700/60 flex-wrap text-[10px]">
+              <div class="flex items-center gap-1.5 pb-2 border-b border-gray-700/60 flex-wrap text-[10px]">
                 <span class="px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-mono font-bold flex items-center gap-1">
                   <i data-lucide="zap" class="w-2.5 h-2.5"></i> ${data.provider}
                 </span>
@@ -714,30 +717,20 @@ HTML_CONTENT = r"""<!DOCTYPE html>
                 <span class="px-2 py-0.5 rounded-full bg-gray-900 text-gray-400 font-mono">
                   ⏱️ ${totalLatency} ms
                 </span>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono">
-                  🔄 ${data.trace_logs?.length || 1} bước ReAct
-                </span>
+                <button onclick="switchRightTab('react')" class="px-2 py-0.5 rounded-full bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 font-mono flex items-center gap-1 cursor-pointer transition" title="Xem chuỗi suy luận ReAct ở bảng bên phải">
+                  🔄 ${data.trace_logs?.length || 1} bước ReAct ➔
+                </button>
               </div>
 
-              <!-- VISUAL REASONING ACCORDION -->
-              <details class="mb-3 bg-gray-950/70 border border-gray-700/60 rounded-xl p-2.5 text-xs text-gray-300 cursor-pointer" open>
-                <summary class="font-bold text-blue-400 flex items-center gap-1.5 hover:text-blue-300 select-none text-[11px]">
-                  <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Xem chuỗi suy luận ReAct (Thought ➔ Action ➔ Observation)
-                </summary>
-                <div class="mt-2 space-y-1">
-                  ${reasoningStepsHtml}
-                </div>
-              </details>
-
               <!-- FINAL ANSWER MARKDOWN -->
-              <div class="prose prose-invert text-sm">
+              <div class="prose prose-invert text-sm max-w-none">
                 ${marked.parse(finalAnswer)}
               </div>
             </div>
           </div>
         `;
 
-        // Check if FastPass was generated & trigger confetti
+        // Check if FastPass was generated & show QR tab
         checkAndShowFastPass(data.trace_logs || []);
 
         // Refresh Canteen Metrics
@@ -758,12 +751,134 @@ HTML_CONTENT = r"""<!DOCTYPE html>
       }
     }
 
+    function switchRightTab(tabName) {
+      const tabs = ['react', 'waterfall', 'ticket'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        const content = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn && content) {
+          if (t === tabName) {
+            btn.className = "px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition bg-blue-600 text-white shadow-md";
+            content.classList.remove("hidden");
+          } else {
+            btn.className = "px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-gray-200 flex items-center gap-1.5 transition";
+            content.classList.add("hidden");
+          }
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function clearTraceLogs() {
+      renderReactSteps([]);
+      renderWaterfallTrace([]);
+      document.getElementById("fastpassTicketContainer")?.classList.add("hidden");
+      document.getElementById("fastpassTicketEmpty")?.classList.remove("hidden");
+      document.getElementById("ticketBadgeIndicator")?.classList.add("hidden");
+      document.getElementById("tabBadgeReact")?.classList.add("hidden");
+      document.getElementById("traceCounter").textContent = "0";
+      switchRightTab('react');
+    }
+
+    function renderReactSteps(logs) {
+      const container = document.getElementById("tabContentReact");
+      if (!container) return;
+
+      if (!logs || logs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-500 py-16 text-xs">
+            <i data-lucide="cpu" class="w-10 h-10 mx-auto mb-2 opacity-30 text-blue-400"></i>
+            Chưa có phiên suy luận nào.<br>Gửi một câu hỏi để theo dõi trực quan chuỗi Thought ➔ Action ➔ Observation!
+          </div>
+        `;
+        document.getElementById("tabBadgeReact")?.classList.add("hidden");
+        lucide.createIcons();
+        return;
+      }
+
+      let html = `<div class="space-y-3">`;
+      logs.forEach((step, idx) => {
+        if (step.action_type === "TOOL_EXECUTION") {
+          html += `
+            <div class="bg-gray-950/90 border border-yellow-500/40 rounded-xl p-3 shadow-md space-y-2">
+              <div class="flex items-center justify-between border-b border-gray-800 pb-2 text-[11px]">
+                <span class="font-bold text-yellow-400 flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-300 font-mono text-[10px] font-bold">${step.step}</span>
+                  Action ➔ Gọi Công cụ MCP
+                </span>
+                <span class="font-mono text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800 text-[10px]">⏱️ ${step.latency_ms || 0} ms</span>
+              </div>
+
+              <div class="text-xs">
+                <span class="text-gray-400">Tên Tool:</span> <code class="font-mono text-blue-300 font-bold bg-blue-950/70 px-1.5 py-0.5 rounded border border-blue-800/40">${step.tool_name}</code>
+              </div>
+
+              <div>
+                <div class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">Tham số truyền vào (Arguments):</div>
+                <pre class="bg-gray-900/90 border border-gray-800 p-2 rounded-lg text-[10px] font-mono text-indigo-300 overflow-x-auto">${JSON.stringify(step.arguments || {}, null, 2)}</pre>
+              </div>
+
+              <div>
+                <div class="text-[10px] text-emerald-400 uppercase tracking-wider font-semibold mb-1 flex items-center gap-1">
+                  <i data-lucide="eye" class="w-3 h-3"></i> Observation từ MCP Server:
+                </div>
+                <pre class="bg-gray-900/90 border border-emerald-900/40 p-2 rounded-lg text-[10px] font-mono text-emerald-300 overflow-x-auto max-h-48">${JSON.stringify(step.observation || {}, null, 2)}</pre>
+              </div>
+            </div>
+          `;
+        } else if (step.action_type === "FINAL_ANSWER") {
+          html += `
+            <div class="bg-gray-950/90 border border-blue-500/40 rounded-xl p-3 shadow-md space-y-2">
+              <div class="flex items-center justify-between border-b border-gray-800 pb-2 text-[11px]">
+                <span class="font-bold text-blue-400 flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 font-mono text-[10px] font-bold">${step.step}</span>
+                  ${step.thought ? "Thought & Suy Luận" : "Final Answer"}
+                </span>
+                <span class="font-mono text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800 text-[10px]">⏱️ ${step.latency_ms || 0} ms</span>
+              </div>
+
+              ${step.thought ? `
+                <div>
+                  <div class="text-[10px] text-blue-300 uppercase tracking-wider font-semibold mb-1 flex items-center gap-1">
+                    <i data-lucide="brain" class="w-3 h-3"></i> Thought (Suy luận nội tại của LLM):
+                  </div>
+                  <p class="text-xs text-gray-300 bg-gray-900/90 border border-gray-800 p-2.5 rounded-lg italic leading-relaxed">${step.thought}</p>
+                </div>
+              ` : ''}
+
+              <div>
+                <div class="text-[10px] text-purple-400 uppercase tracking-wider font-semibold mb-1 flex items-center gap-1">
+                  <i data-lucide="check-circle-2" class="w-3 h-3"></i> Kết luận cuối cùng:
+                </div>
+                <div class="text-xs text-gray-200 bg-purple-950/20 border border-purple-900/40 p-2.5 rounded-lg line-clamp-3 leading-relaxed">
+                  ${step.output || "Đã hoàn thành phiên ReAct."}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+
+      const badge = document.getElementById("tabBadgeReact");
+      if (badge) {
+        badge.textContent = logs.length;
+        badge.classList.remove("hidden");
+      }
+
+      // Auto switch to ReAct tab on new message
+      switchRightTab('react');
+      lucide.createIcons();
+    }
+
     function renderWaterfallTrace(logs) {
       const container = document.getElementById("waterfallLogs");
-      document.getElementById("traceCounter").textContent = `${logs.length} sự kiện`;
+      if (!container) return;
+      document.getElementById("traceCounter").textContent = `${logs.length}`;
       
       if (!logs || logs.length === 0) {
-        container.innerHTML = `<div class="text-center text-gray-500 py-6">Không có sự kiện trace.</div>`;
+        container.innerHTML = `<div class="text-center text-gray-500 py-16 text-xs">Không có sự kiện trace nào.</div>`;
         return;
       }
 
@@ -776,7 +891,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
                 <span class="font-bold text-yellow-400 flex items-center gap-1">
                   <i data-lucide="wrench" class="w-3.5 h-3.5"></i> TOOL CALL: ${log.tool_name}
                 </span>
-                <span class="text-gray-400 font-mono">${log.latency_ms || 0} ms</span>
+                <span class="text-gray-400 font-mono text-[10px]">⏱️ ${log.latency_ms || 0} ms</span>
               </div>
               <div class="bg-gray-950 p-2 rounded text-[10px] font-mono text-gray-300 overflow-x-auto">
                 <span class="text-gray-500">// Arguments:</span><br>
@@ -797,7 +912,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
                 <span class="font-bold text-emerald-400 flex items-center gap-1">
                   <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> FINAL ANSWER
                 </span>
-                <span class="text-gray-400 font-mono">${log.latency_ms || 0} ms</span>
+                <span class="text-gray-400 font-mono text-[10px]">⏱️ ${log.latency_ms || 0} ms</span>
               </div>
               <p class="text-gray-300 text-[11px] line-clamp-3">${log.output || ""}</p>
             </div>
@@ -812,6 +927,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     function checkAndShowFastPass(logs) {
       const orderLog = logs.find(l => l.tool_name === "order_meal_fastpass" && l.observation?.status === "SUCCESS");
       const container = document.getElementById("fastpassTicketContainer");
+      const emptyState = document.getElementById("fastpassTicketEmpty");
+      const badge = document.getElementById("ticketBadgeIndicator");
 
       if (orderLog && orderLog.observation) {
         const obs = orderLog.observation;
@@ -833,19 +950,23 @@ HTML_CONTENT = r"""<!DOCTYPE html>
           correctLevel: QRCode.CorrectLevel.H
         });
 
+        emptyState?.classList.add("hidden");
         container.classList.remove("hidden");
-        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        badge?.classList.remove("hidden");
+
+        // Switch to ticket tab immediately!
+        switchRightTab('ticket');
 
         // Fire Confetti!
         try {
           confetti({
-            particleCount: 80,
-            spread: 60,
-            origin: { y: 0.7 }
+            particleCount: 90,
+            spread: 70,
+            origin: { y: 0.6 }
           });
         } catch(e) {}
-      } else if (container) {
-        container.classList.add("hidden");
+      } else {
+        badge?.classList.add("hidden");
       }
     }
 
@@ -931,6 +1052,7 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
 
         elif parsed.path == "/api/chat":
             query = req_data.get("query", "")
+            student_id = req_data.get("student_id", "2A202602840")
             provider_name = req_data.get("provider", "groq")
             model_name = req_data.get("model")
             custom_key = req_data.get("api_key")
@@ -938,8 +1060,8 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             # Khởi tạo Provider theo lựa chọn trên Web
             provider = self.resolve_provider(provider_name, model_name, custom_key)
 
-            # Thực thi ReAct Loop
-            trace_logs = self.execute_react_agent(query, provider)
+            # Thực thi ReAct Loop với session context học viên
+            trace_logs = self.execute_react_agent(query, provider, student_id)
             final_answer = ""
             for log in reversed(trace_logs):
                 if log.get("action_type") == "FINAL_ANSWER":
@@ -1062,16 +1184,34 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
         else:
             return MockOfflineProvider()
 
-    def execute_react_agent(self, user_query: str, provider) -> list:
+    def execute_react_agent(self, user_query: str, provider, student_id: str = "2A202602840") -> list:
         step = 0
         trace_logs = []
         tools_list = self.mcp_server.list_tools()
-        current_prompt = user_query
+
+        sid = (student_id or "2A202602840").strip().upper()
+        stud = CANTEEN_DB["students"].get(sid, {})
+        stud_name = stud.get("full_name", f"Học viên {sid}")
+        stud_cohort = stud.get("cohort", "AI Course")
+        stud_ticket = stud.get("ticket_type", "VE_THANG")
+        stud_punches = stud.get("remaining_punches", 0)
+
+        session_context = (
+            f"[THÔNG TIN TÀI KHOẢN ĐANG ĐĂNG NHẬP TRONG PHIÊN NÀY]:\n"
+            f"- Họ và tên: {stud_name}\n"
+            f"- Mã số học viên (MSSV): '{sid}'\n"
+            f"- Khóa học: {stud_cohort}\n"
+            f"- Loại thẻ vé: {stud_ticket} ({'Còn ' + str(stud_punches) + ' lượt bấm' if stud_ticket == 'VE_THANG' else 'Thanh toán VietQR'})\n"
+            f"- QUY TẮC NHẬN DIỆN DANH TÍNH: Khi học viên nói 'tôi', 'của tôi', 'tài khoản đang đăng nhập đây?', 'thông tin của tôi', hoặc yêu cầu 'kiểm tra thẻ/đặt suất' mà không nhắc lại MSSV, bạn PHẢI SỬ DỤNG NGAY mã số '{sid}' ({stud_name}) để tra cứu hoặc xử lý qua công cụ. TUYỆT ĐỐI KHÔNG HỎI LẠI MÃ SỐ HỌC VIÊN!"
+        )
+
+        current_prompt = f"{session_context}\n\n[YÊU CẦU CỦA HỌC VIÊN {stud_name} ({sid})]:\n{user_query}"
+        active_system_prompt = f"{REACT_AGENT_SYSTEM_PROMPT}\n\n{session_context}"
 
         while step < MAX_ITERATIONS:
             step += 1
             step_start_time = time.time()
-            llm_response = provider.generate_with_tools(current_prompt, tools_list, system_prompt=REACT_AGENT_SYSTEM_PROMPT)
+            llm_response = provider.generate_with_tools(current_prompt, tools_list, system_prompt=active_system_prompt)
             latency_ms = round((time.time() - step_start_time) * 1000, 2)
             thought = llm_response.get("thought", "Đang suy luận...")
 
@@ -1139,11 +1279,12 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
                     break
 
                 current_prompt = (
-                    f"Yêu cầu ban đầu của học viên: {user_query}\n\n"
+                    f"{session_context}\n\n"
+                    f"Yêu cầu ban đầu của học viên {stud_name} ({sid}): {user_query}\n\n"
                     f"Bước {step} bạn đã gọi công cụ '{tool_name}' với tham số {json.dumps(arguments, ensure_ascii=False)}.\n"
                     f"[Kết quả Observation từ MCP Server]:\n{obs_str}\n\n"
                     "QUY TẮC QUYẾT ĐỊNH:\n"
-                    "- Nếu yêu cầu ban đầu ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ chỉ hỏi tra cứu thông tin, hỏi giờ, hỏi sức chứa, hỏi thực đơn), hãy NGỪNG GỌI TOOL và đưa ra câu trả lời (Final Answer) đầy đủ, thân thiện.\n"
+                    "- Nếu yêu cầu ban đầu ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ chỉ hỏi tra cứu thông tin, hỏi giờ, hỏi sức chứa, hỏi thực đơn, thông tin tài khoản), hãy NGỪNG GỌI TOOL và đưa ra câu trả lời (Final Answer) đầy đủ, thân thiện.\n"
                     "- TUYỆT ĐỐI KHÔNG tự ý gọi tool đặt suất ăn 'order_meal_fastpass' nếu người dùng không yêu cầu đặt món trong câu hỏi ban đầu!\n"
                     "- Chỉ gọi thêm Tool tiếp theo nếu yêu cầu đòi hỏi hành động đa bước (ví dụ: học viên nói 'kiểm tra xong đặt luôn cho tôi')."
                 )

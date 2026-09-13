@@ -76,9 +76,42 @@ class MockOfflineProvider(BaseLLMProvider):
                 "thought": "Người dùng hỏi thông tin chung về giờ mở cửa và sức chứa nhà ăn. Trả lời trực tiếp bằng văn bản, không cần gọi công cụ."
             }
 
+        # Nhận diện MSSV từ prompt context hoặc query
+        sid = "2A202602840"
+        if "mã số: '" in prompt:
+            try:
+                sid = prompt.split("mã số: '")[1].split("'")[0].strip().upper()
+            except Exception:
+                pass
+        elif "2a202602840" in query_lower:
+            sid = "2A202602840"
+        elif "sv2026001" in query_lower:
+            sid = "SV2026001"
+        elif "sv2026002" in query_lower:
+            sid = "SV2026002"
+        elif "sv9999999" in query_lower:
+            sid = "SV9999999"
+
+        # Nếu hỏi về tài khoản đang đăng nhập / tôi là ai
+        if "tài khoản" in query_lower and ("đăng nhập" in query_lower or "đây" in query_lower or "ai" in query_lower or "của tôi" in query_lower):
+            try:
+                from src.tools import CANTEEN_DB
+                stud_info = CANTEEN_DB["students"].get(sid, {})
+                name = stud_info.get("full_name", f"Học viên {sid}")
+                cohort = stud_info.get("cohort", "VinLab")
+                ttype = stud_info.get("ticket_type", "VE_THANG")
+                punches = stud_info.get("remaining_punches", 0)
+                ticket_desc = f"Vé tháng (Còn {punches} lượt bấm)" if ttype == "VE_THANG" else "Vé ngày (Chuyển khoản VietQR)"
+                return {
+                    "type": "text",
+                    "content": f"Tài khoản đang đăng nhập trong phiên hiện tại của bạn là:\n\n- 👤 **Họ và tên:** {name}\n- 🆔 **MSSV:** `{sid}`\n- 🎓 **Lớp:** {cohort}\n- 🎫 **Trạng thái thẻ:** {ticket_desc}\n\nBạn có muốn tôi kiểm tra tình trạng tải 2 bếp hoặc hỗ trợ đặt suất ăn trưa không?",
+                    "thought": f"Người dùng hỏi thông tin tài khoản đang đăng nhập. Trả lời ngay thông tin phiên của học viên {name} ({sid})."
+                }
+            except Exception:
+                pass
+
         # 3. Yêu cầu ĐẶT SUẤT ĂN FASTPASS (Chỉ kích hoạt khi người dùng NÓI RÕ 'đặt', 'order', 'mua'):
         if ("đặt" in query_lower or "order" in query_lower or "lấy suất" in query_lower or "mua suất" in query_lower) and not ("không đặt" in query_lower or "chưa đặt" in query_lower):
-            sid = "2A202602840" if "2a202602840" in query_lower else ("SV2026002" if "sv2026002" in query_lower else "2A202602840")
             kid = "bep_1" if "bếp 1" in query_lower else "bep_2"
             opt = "takeaway" if ("phòng" in query_lower or "mang" in query_lower or "hộp" in query_lower or "takeaway" in query_lower) else "dine_in"
             meal = "Bún chả Hà Nội than hoa" if "bún" in query_lower else ("Suất cơm sườn nướng mật ong" if "sườn" in query_lower else "Suất cơm tiêu chuẩn")
@@ -91,10 +124,7 @@ class MockOfflineProvider(BaseLLMProvider):
             }
 
         # 4. Yêu cầu TRA CỨU TẢI NHÀ ĂN / BẾP / THẺ VÉ:
-        elif "vé" in query_lower or "nhà ăn" in query_lower or "bếp" in query_lower or "ghế" in query_lower or "tra cứu" in query_lower or "kiểm tra" in query_lower or "vắng" in query_lower or "tình hình" in query_lower:
-            sid = "2A202602840" if "2a202602840" in query_lower else ("SV2026002" if "sv2026002" in query_lower else "SV2026001")
-            if "sv9999999" in query_lower:
-                sid = "SV9999999"
+        elif "vé" in query_lower or "nhà ăn" in query_lower or "bếp" in query_lower or "ghế" in query_lower or "tra cứu" in query_lower or "kiểm tra" in query_lower or "vắng" in query_lower or "tình hình" in query_lower or "thông tin của tôi" in query_lower or "của tôi" in query_lower:
             pref = "bep_1" if "bếp 1" in query_lower else ("bep_2" if "bếp 2" in query_lower else None)
             args = {"student_id": sid}
             if pref:

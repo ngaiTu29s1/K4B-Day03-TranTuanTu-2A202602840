@@ -99,7 +99,26 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
     step = 0
     trace_logs = []
     tools_list = mcp_server.list_tools()
-    current_prompt = user_query
+
+    from src.tools import CANTEEN_DB
+    sid = "2A202602840"
+    stud = CANTEEN_DB["students"].get(sid, {})
+    stud_name = stud.get("full_name", "Trần Tuấn Tú")
+    stud_cohort = stud.get("cohort", "K4B")
+    stud_ticket = stud.get("ticket_type", "VE_THANG")
+    stud_punches = stud.get("remaining_punches", 18)
+
+    session_context = (
+        f"[THÔNG TIN TÀI KHOẢN ĐANG ĐĂNG NHẬP TRONG PHIÊN NÀY]:\n"
+        f"- Họ và tên: {stud_name}\n"
+        f"- Mã số học viên (MSSV): '{sid}'\n"
+        f"- Khóa học: {stud_cohort}\n"
+        f"- Loại thẻ vé: {stud_ticket} (Còn {stud_punches} lượt)\n"
+        f"- QUY TẮC NHẬN DIỆN: Khi học viên nói 'tôi', 'của tôi', 'tài khoản đang đăng nhập đây?', 'thông tin của tôi', bạn PHẢI SỬ DỤNG NGAY mã số '{sid}' ({stud_name}) để tra cứu hoặc xử lý qua công cụ. TUYỆT ĐỐI KHÔNG HỎI LẠI MÃ SỐ HỌC VIÊN!"
+    )
+
+    current_prompt = f"{session_context}\n\n[YÊU CẦU CỦA HỌC VIÊN {stud_name} ({sid})]:\n{user_query}"
+    active_system_prompt = f"{REACT_AGENT_SYSTEM_PROMPT}\n\n{session_context}"
     
     while step < MAX_ITERATIONS:
         step += 1
@@ -111,7 +130,7 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
             print(f"\n--- 🔄 Vòng lặp ReAct Loop (Step {step}/{MAX_ITERATIONS}) ---")
         
         # Gọi LLM với Native Tool Calling Specs
-        llm_response = provider.generate_with_tools(current_prompt, tools_list, system_prompt=REACT_AGENT_SYSTEM_PROMPT)
+        llm_response = provider.generate_with_tools(current_prompt, tools_list, system_prompt=active_system_prompt)
         latency_ms = round((time.time() - step_start_time) * 1000, 2)
         
         thought = llm_response.get("thought", "Đang suy luận...")
