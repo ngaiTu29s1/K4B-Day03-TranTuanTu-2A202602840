@@ -222,13 +222,12 @@ def execute_order_meal_fastpass(
     
     # Xử lý theo loại vé
     if student.get("ticket_type") == "VE_THANG":
-        remaining = max(0, student.get("remaining_punches", 1) - 1)
-        student["remaining_punches"] = remaining
-        ticket_action = f"Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: {remaining}/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công)."
-        payment_info = "Đã thanh toán (Vé tháng)"
+        remaining = student.get("remaining_punches", 0)
+        ticket_action = f"Vé tháng hợp lệ (còn {remaining}/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công)."
+        payment_info = f"Vé tháng (còn {remaining} lượt)"
     else:
-        ticket_action = "Tự động sinh mã VietQR thanh toán 35.000đ tới chủ bếp: 'NAPAS247-VINLAB-MEAL'. Quét chuyển khoản xong là hệ thống tự xác thực, không cần đưa điện thoại cho chủ kiểm tra."
-        payment_info = "VietQR 35.000đ (Nội dung: CK-FASTPASS-COMTRUA)"
+        ticket_action = "Vé ngày: Thanh toán 35.000đ khi nhận đồ hoặc quét QR tại quầy bếp."
+        payment_info = "35.000đ (thanh toán khi nhận đồ)"
 
     dining_desc = "Mang về phòng tự học (Takeaway box)" if dining_option == "takeaway" else "Ăn tại chỗ (Dine-in khay cơm)"
 
@@ -243,7 +242,7 @@ def execute_order_meal_fastpass(
         "dining_option": dining_desc,
         "ticket_processing": ticket_action,
         "payment_status": payment_info,
-        "pickup_instructions": f"Đúng {pickup_time}, hãy đến CỬA FAST-TRACK CỦA {kitchen_data['name'].upper()}, xuất trình mã {fastpass_code} để lấy đồ trong 30 giây không cần xếp hàng!"
+        "pickup_instructions": f"Đúng {pickup_time}, hãy đến CỬA FAST-TRACK CỦA {kitchen_data['name'].upper()}, xuất trình mã {fastpass_code} để quét nhận đồ trong 30 giây (quét xong trừ lượt, không cần xếp hàng)!"
     }, ensure_ascii=False)
 
 

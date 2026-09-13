@@ -1210,7 +1210,13 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
         trace_logs = []
         tools_list = self.mcp_server.list_tools()
 
-        sid = (student_id or "2A202602840").strip().upper()
+        import re
+        sid_match = re.search(r'\b(SV\d+|2A\d+)\b', user_query, re.IGNORECASE)
+        if sid_match:
+            sid = sid_match.group(1).upper()
+        else:
+            sid = (student_id or "2A202602840").strip().upper()
+
         stud = CANTEEN_DB["students"].get(sid, {})
         stud_name = stud.get("full_name", f"Học viên {sid}")
         stud_cohort = stud.get("cohort", "AI Course")
@@ -1237,19 +1243,41 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             thought = llm_response.get("thought", "Đang suy luận...")
 
             if llm_response.get("type") == "text":
-                final_content = llm_response.get("content", "")
-                trace_logs.append({
-                    "step": step,
-                    "query": user_query,
-                    "action_type": "FINAL_ANSWER",
-                    "thought": thought,
-                    "output": final_content,
-                    "latency_ms": latency_ms
-                })
-                break
-            elif llm_response.get("type") == "tool_call":
+                final_content = (llm_response.get("content") or "").strip()
+
+                # Nếu model trả về nội dung rỗng
+                if not final_content:
+                    tool_steps = [l for l in trace_logs if l.get("action_type") == "TOOL_EXECUTION"]
+                    if tool_steps:
+                        last_obs = tool_steps[-1].get("observation", {})
+                        final_content = last_obs.get("message") or f"Đã hoàn thành tra cứu: {json.dumps(last_obs, ensure_ascii=False)}"
+                    elif step == 1 and any(kw in user_query.lower() for kw in ["kiểm tra", "xem", "bếp", "thông thoáng", "đặt", "suất", "thẻ", "vé"]):
+                        # Chuyển hướng sang gọi tool check_canteen_and_tickets thay vì kết thúc rỗng
+                        llm_response = {
+                            "type": "tool_call",
+                            "tool_name": "check_canteen_and_tickets",
+                            "arguments": {"student_id": sid},
+                            "thought": f"Tự động tra cứu tình trạng nhà ăn và 2 bếp cho học viên {sid}."
+                        }
+
+                if llm_response.get("type") == "text":
+                    trace_logs.append({
+                        "step": step,
+                        "query": user_query,
+                        "action_type": "FINAL_ANSWER",
+                        "thought": thought,
+                        "output": final_content or "Đã xử lý xong yêu cầu của bạn.",
+                        "latency_ms": latency_ms
+                    })
+                    break
+
+            if llm_response.get("type") == "tool_call":
                 tool_name = llm_response.get("tool_name")
                 arguments = llm_response.get("arguments", {})
+
+                # Đảm bảo student_id luôn đúng
+                if "student_id" not in arguments or not arguments["student_id"]:
+                    arguments["student_id"] = sid
 
                 # GUARDRAIL: Ngăn chặn model bị ảo giác tự gọi tool order_meal_fastpass khi người dùng chỉ hỏi tra cứu
                 if tool_name == "order_meal_fastpass":

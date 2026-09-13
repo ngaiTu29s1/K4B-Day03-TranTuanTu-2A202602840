@@ -280,24 +280,31 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                 tools=tools if tools else None,
                 tool_choice="auto" if tools else None,
                 temperature=0.2,
-                max_tokens=700
+                max_tokens=1500
             )
 
             msg = response.choices[0].message
+            reasoning = getattr(msg, "reasoning", None) or getattr(msg, "thought", None)
+
             if msg.tool_calls:
                 call = msg.tool_calls[0]
                 args = json.loads(call.function.arguments) if call.function.arguments else {}
+                thought_str = reasoning or f"{self.provider_name} ({self.model_name}) quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
                 return {
                     "type": "tool_call",
                     "tool_name": call.function.name,
                     "arguments": args,
-                    "thought": f"{self.provider_name} ({self.model_name}) quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
+                    "thought": thought_str
                 }
             else:
+                content = msg.content or ""
+                if not content.strip() and reasoning:
+                    content = reasoning.strip()
+                thought_str = reasoning or f"{self.provider_name} ({self.model_name}) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
                 return {
                     "type": "text",
-                    "content": msg.content or "",
-                    "thought": f"{self.provider_name} ({self.model_name}) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
+                    "content": content,
+                    "thought": thought_str
                 }
         except Exception as e:
             print(f"⚠️ [{self.provider_name} API Warning]: Lỗi kết nối ({str(e)}). Fallback về Mock.")
