@@ -35,34 +35,87 @@ class MockOfflineProvider(BaseLLMProvider):
         return f"[Mock Chatbot Response]: Xin chào! Tôi đã nhận được câu hỏi '{prompt}'. (Chế độ Chatbot không có Tool tra cứu dữ liệu thời gian thực)."
 
     def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        prompt_lower = prompt.lower()
-        
-        # Mô phỏng nhận diện intent gọi Tool
-        if "đặt" in prompt_lower or "order" in prompt_lower or "fastpass" in prompt_lower:
-            sid = "2A202602840" if "2a202602840" in prompt_lower else "SV2026002"
-            kid = "bep_1" if "bếp 1" in prompt_lower else "bep_2"
-            opt = "takeaway" if ("phòng" in prompt_lower or "mang" in prompt_lower or "hộp" in prompt_lower) else "dine_in"
+        # Tách câu hỏi thực tế của người dùng nếu đang ở trong chuỗi ReAct đa bước
+        user_query = prompt
+        is_subsequent_step = False
+        if "Yêu cầu ban đầu của học viên:" in prompt:
+            is_subsequent_step = True
+            try:
+                user_query = prompt.split("Yêu cầu ban đầu của học viên:")[1].split("\n")[0].strip()
+            except Exception:
+                user_query = prompt
+
+        query_lower = user_query.lower()
+
+        # 1. Nếu đang ở bước ReAct thứ 2 trở đi:
+        # Nếu người dùng KHÔNG yêu cầu đặt món (chỉ tra cứu hoặc hỏi thông tin), dừng lại và trả lời ngay (Final Answer)!
+        if is_subsequent_step:
+            if not ("đặt" in query_lower or "order" in query_lower or "lấy suất" in query_lower or "mua suất" in query_lower):
+                return {
+                    "type": "text",
+                    "content": "Tôi đã hoàn thành kiểm tra thông tin theo yêu cầu của bạn. Tình trạng nhà ăn, hai bếp và thông tin vé học viên đã được tra cứu đầy đủ ở bước trên. Nếu cần hỗ trợ đặt suất ăn FastPass để kịp giờ nghỉ trưa, bạn hãy cho tôi biết nhé!",
+                    "thought": "Yêu cầu ban đầu chỉ là tra cứu thông tin, không yêu cầu đặt món. Tôi đưa ra câu trả lời cuối cùng và không gọi thêm công cụ."
+                }
+
+        # 2. Câu hỏi chung về giờ mở cửa, sức chứa, quy định nhà ăn:
+        # TRẢ LỜI TRỰC TIẾP bằng văn bản, TUYỆT ĐỐI KHÔNG GỌI TOOL ĐẶT VÉ!
+        general_keywords = ["mấy giờ", "giờ mở cửa", "giờ ăn", "sức chứa", "bao nhiêu chỗ", "bao nhiêu ghế", "khi nào", "thời gian phục vụ", "quy chế", "ở đâu"]
+        is_general = any(k in query_lower for k in general_keywords) and not ("đặt" in query_lower or "order" in query_lower)
+        if is_general and not ("thẻ vé" in query_lower or "mã số" in query_lower or "2a2026" in query_lower or "sv2026" in query_lower):
+            return {
+                "type": "text",
+                "content": (
+                    "**Thông tin chung về Nhà ăn VinLab:**\n\n"
+                    "- 🕒 **Giờ mở cửa ăn trưa:** 13h00 – 14h00 (nghỉ trưa 60 phút ngay sau ca tan học sáng lúc 13h00).\n"
+                    "- 🪑 **Sức chứa:** 500 ghế ngồi (đáp ứng ~50% nhu cầu cùng lúc của 1.000 học viên).\n"
+                    "- 🍱 **Các bếp phục vụ:**\n"
+                    "  - **Bếp 1:** Cơm phần truyền thống (cơm sườn nướng mật ong, cơm gà xối mỡ, cá kho tộ).\n"
+                    "  - **Bếp 2:** Bún mì & Healthy (bún chả than hoa, mì gà tần thảo mộc, cơm Eat Clean ức gà).\n\n"
+                    "💡 *Gợi ý:* Để không phải chờ đợi trong giờ cao điểm 13h–14h, bạn có thể kiểm tra tình trạng xếp hàng hoặc đặt trước suất ăn nhận tại làn ưu tiên FastPass nhé!"
+                ),
+                "thought": "Người dùng hỏi thông tin chung về giờ mở cửa và sức chứa nhà ăn. Trả lời trực tiếp bằng văn bản, không cần gọi công cụ."
+            }
+
+        # 3. Yêu cầu ĐẶT SUẤT ĂN FASTPASS (Chỉ kích hoạt khi người dùng NÓI RÕ 'đặt', 'order', 'mua'):
+        if ("đặt" in query_lower or "order" in query_lower or "lấy suất" in query_lower or "mua suất" in query_lower) and not ("không đặt" in query_lower or "chưa đặt" in query_lower):
+            sid = "2A202602840" if "2a202602840" in query_lower else ("SV2026002" if "sv2026002" in query_lower else "2A202602840")
+            kid = "bep_1" if "bếp 1" in query_lower else "bep_2"
+            opt = "takeaway" if ("phòng" in query_lower or "mang" in query_lower or "hộp" in query_lower or "takeaway" in query_lower) else "dine_in"
+            meal = "Bún chả Hà Nội than hoa" if "bún" in query_lower else ("Suất cơm sườn nướng mật ong" if "sườn" in query_lower else "Suất cơm tiêu chuẩn")
+            time_slot = "13:05" if "13:05" in query_lower else ("13:10" if "13:10" in query_lower else "13:20")
             return {
                 "type": "tool_call",
                 "tool_name": "order_meal_fastpass",
-                "arguments": {"student_id": sid, "kitchen_id": kid, "pickup_time": "13:05", "dining_option": opt, "meal_item": "Suất cơm tiêu chuẩn"},
-                "thought": f"Người dùng yêu cầu đặt suất ăn FastPass cho học viên {sid}. Tôi sẽ gọi tool order_meal_fastpass."
+                "arguments": {"student_id": sid, "kitchen_id": kid, "pickup_time": time_slot, "dining_option": opt, "meal_item": meal},
+                "thought": f"Người dùng yêu cầu đặt suất ăn FastPass ({meal} tại {kid}, nhận lúc {time_slot}). Gọi tool order_meal_fastpass."
             }
-        elif "vé" in prompt_lower or "nhà ăn" in prompt_lower or "bếp" in prompt_lower or "ghế" in prompt_lower or "tra cứu" in prompt_lower:
-            sid = "2A202602840" if "2a202602840" in prompt_lower else "SV2026001"
-            if "sv9999999" in prompt_lower:
+
+        # 4. Yêu cầu TRA CỨU TẢI NHÀ ĂN / BẾP / THẺ VÉ:
+        elif "vé" in query_lower or "nhà ăn" in query_lower or "bếp" in query_lower or "ghế" in query_lower or "tra cứu" in query_lower or "kiểm tra" in query_lower or "vắng" in query_lower or "tình hình" in query_lower:
+            sid = "2A202602840" if "2a202602840" in query_lower else ("SV2026002" if "sv2026002" in query_lower else "SV2026001")
+            if "sv9999999" in query_lower:
                 sid = "SV9999999"
+            pref = "bep_1" if "bếp 1" in query_lower else ("bep_2" if "bếp 2" in query_lower else None)
+            args = {"student_id": sid}
+            if pref:
+                args["preferred_kitchen"] = pref
             return {
                 "type": "tool_call",
                 "tool_name": "check_canteen_and_tickets",
-                "arguments": {"student_id": sid},
-                "thought": f"Người dùng muốn tra cứu tình trạng nhà ăn và vé học viên {sid}. Tôi sẽ gọi tool check_canteen_and_tickets."
+                "arguments": args,
+                "thought": f"Người dùng muốn tra cứu tình trạng nhà ăn, tải 2 bếp và vé học viên {sid}. Gọi tool check_canteen_and_tickets."
             }
+
+        # 5. Mặc định: Trả lời văn bản hướng dẫn
         else:
             return {
                 "type": "text",
-                "content": "[Mock Agent Response]: Nhà ăn VinLab phục vụ từ 13h00 - 14h00, sức chứa 500 ghế ngồi cho 1000 học viên, gồm Bếp 1 (Cơm phần) và Bếp 2 (Bún mì & Healthy). Bạn có thể tra cứu vé hoặc đặt trước suất ăn FastPass.",
-                "thought": "Câu hỏi chung về quy chế nhà ăn, trả lời trực tiếp không cần gọi Tool."
+                "content": (
+                    "Xin chào! Tôi là Trợ lý FastPass Nhà ăn VinLab. "
+                    "Tôi có thể giúp bạn kiểm tra độ ùn ứ của 2 bếp, xem tình trạng ghế trống, "
+                    "kiểm tra số lượt thẻ vé và đặt trước suất ăn mang về phòng tự học để kịp giờ nghỉ trưa."
+                ),
+                "thought": "Câu hỏi chung hoặc ngoài nghiệp vụ, phản hồi hướng dẫn người dùng."
             }
 
 

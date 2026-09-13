@@ -844,6 +844,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
             origin: { y: 0.7 }
           });
         } catch(e) {}
+      } else if (container) {
+        container.classList.add("hidden");
       }
     }
 
@@ -1113,12 +1115,36 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
                     })
                     break
 
+                # Nếu vừa thực hiện đặt món thành công, hoàn tất luôn không lặp lại
+                if tool_name == "order_meal_fastpass" and obs_data.get("status") == "SUCCESS":
+                    confirmation_answer = (
+                        f"🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n"
+                        f"- 🎫 **Mã E-Ticket FastPass:** `{obs_data.get('fastpass_code')}`\n"
+                        f"- 👤 **Học viên:** {obs_data.get('student_name')} ({obs_data.get('student_id')})\n"
+                        f"- 🍽️ **Bếp phục vụ:** {obs_data.get('kitchen')}\n"
+                        f"- 🍱 **Món ăn:** {obs_data.get('meal_item')}\n"
+                        f"- ⏱️ **Khung giờ nhận đồ:** **{obs_data.get('pickup_time')}**\n"
+                        f"- 📦 **Hình thức:** {obs_data.get('dining_option')}\n"
+                        f"- 💳 **Xử lý vé/thanh toán:** {obs_data.get('ticket_processing')}\n\n"
+                        f"👉 **Hướng dẫn:** {obs_data.get('pickup_instructions')}"
+                    )
+                    trace_logs.append({
+                        "step": step + 1,
+                        "query": user_query,
+                        "action_type": "FINAL_ANSWER",
+                        "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+                        "output": confirmation_answer,
+                        "latency_ms": 10.0
+                    })
+                    break
+
                 current_prompt = (
                     f"Yêu cầu ban đầu của học viên: {user_query}\n\n"
                     f"Bước {step} bạn đã gọi công cụ '{tool_name}' với tham số {json.dumps(arguments, ensure_ascii=False)}.\n"
                     f"[Kết quả Observation từ MCP Server]:\n{obs_str}\n\n"
                     "QUY TẮC QUYẾT ĐỊNH:\n"
-                    "- Nếu yêu cầu ban đầu ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ chỉ hỏi tra cứu thông tin), hãy NGỪNG GỌI TOOL và đưa ra câu trả lời (Final Answer) đầy đủ, thân thiện.\n"
+                    "- Nếu yêu cầu ban đầu ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ chỉ hỏi tra cứu thông tin, hỏi giờ, hỏi sức chứa, hỏi thực đơn), hãy NGỪNG GỌI TOOL và đưa ra câu trả lời (Final Answer) đầy đủ, thân thiện.\n"
+                    "- TUYỆT ĐỐI KHÔNG tự ý gọi tool đặt suất ăn 'order_meal_fastpass' nếu người dùng không yêu cầu đặt món trong câu hỏi ban đầu!\n"
                     "- Chỉ gọi thêm Tool tiếp theo nếu yêu cầu đòi hỏi hành động đa bước (ví dụ: học viên nói 'kiểm tra xong đặt luôn cho tôi')."
                 )
 

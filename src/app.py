@@ -189,16 +189,42 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
                     "output": fallback_answer,
                     "latency_ms": 10.0
                 })
+            # Nếu vừa thực hiện đặt món thành công, hoàn tất luôn không lặp lại
+            if tool_name == "order_meal_fastpass" and obs_data.get("status") == "SUCCESS":
+                confirmation_answer = (
+                    f"🎉 [bold green]ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG![/bold green]\n\n"
+                    f"- 🎫 Mã FastPass: [bold cyan]{obs_data.get('fastpass_code')}[/bold cyan]\n"
+                    f"- 👤 Học viên: {obs_data.get('student_name')} ({obs_data.get('student_id')})\n"
+                    f"- 🍽️ Bếp: {obs_data.get('kitchen')}\n"
+                    f"- 🍱 Món: {obs_data.get('meal_item')}\n"
+                    f"- ⏱️ Khung giờ nhận: [bold yellow]{obs_data.get('pickup_time')}[/bold yellow]\n"
+                    f"- 📦 Hình thức: {obs_data.get('dining_option')}\n"
+                    f"- 💳 Xử lý thẻ: {obs_data.get('ticket_processing')}\n\n"
+                    f"👉 [bold]{obs_data.get('pickup_instructions')}[/bold]"
+                )
+                if HAS_RICH:
+                    console.print(Panel(confirmation_answer, title="🏁 [Final Answer - FastPass Issued]", border_style="bold green"))
+                else:
+                    print(f"🏁 [Final Answer]: {confirmation_answer}")
+
+                trace_logs.append({
+                    "step": step + 1,
+                    "query": user_query,
+                    "action_type": "FINAL_ANSWER",
+                    "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+                    "output": confirmation_answer,
+                    "latency_ms": 10.0
+                })
                 break
-                
             # Đưa Observation vào context để tiếp tục vòng lặp ReAct cho bước tiếp theo
             current_prompt = (
                 f"Yêu cầu ban đầu của học viên: {user_query}\n\n"
                 f"Bước {step} bạn đã gọi công cụ '{tool_name}' với tham số {json.dumps(arguments, ensure_ascii=False)}.\n"
                 f"[Kết quả Observation từ MCP Server]:\n{obs_str}\n\n"
                 "QUY TẮC QUYẾT ĐỊNH BƯỚC TIẾP THEO:\n"
-                "- Nếu yêu cầu ban đầu của học viên ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ: chỉ hỏi tra cứu thông tin mà không bảo đặt suất), "
+                "- Nếu yêu cầu ban đầu của học viên ĐÃ ĐƯỢC GIẢI QUYẾT (ví dụ: chỉ hỏi tra cứu thông tin, hỏi giờ, hỏi sức chứa mà không bảo đặt suất), "
                 "hãy NGỪNG GỌI TOOL và đưa ra câu trả lời cuối cùng (Final Answer) đầy đủ, rõ ràng và thân thiện.\n"
+                "- TUYỆT ĐỐI KHÔNG tự ý gọi tool đặt suất ăn 'order_meal_fastpass' nếu người dùng không yêu cầu đặt món trong câu hỏi ban đầu!\n"
                 "- Chỉ gọi thêm Tool tiếp theo nếu yêu cầu ban đầu rõ ràng đòi hỏi hành động đa bước (ví dụ: học viên nói 'kiểm tra xong đặt luôn cho tôi')."
             )
 
