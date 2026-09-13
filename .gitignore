@@ -13,4 +13,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
+# Scratch & Task requirement files
+complete_require.md

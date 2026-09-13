@@ -38,25 +38,31 @@ class MockOfflineProvider(BaseLLMProvider):
         prompt_lower = prompt.lower()
         
         # Mô phỏng nhận diện intent gọi Tool
-        if "sv2026001" in prompt_lower and "đặt lịch" in prompt_lower:
+        if "đặt" in prompt_lower or "order" in prompt_lower or "fastpass" in prompt_lower:
+            sid = "2A202602840" if "2a202602840" in prompt_lower else "SV2026002"
+            kid = "bep_1" if "bếp 1" in prompt_lower else "bep_2"
+            opt = "takeaway" if ("phòng" in prompt_lower or "mang" in prompt_lower or "hộp" in prompt_lower) else "dine_in"
             return {
                 "type": "tool_call",
-                "tool_name": "schedule_appointment",
-                "arguments": {"student_id": "SV2026001", "datetime_str": "14:00 15/09/2026", "advisor_name": "PGS.TS Nguyễn Văn A"},
-                "thought": "Người dùng yêu cầu đặt lịch hẹn tư vấn cho sinh viên SV2026001. Tôi sẽ gọi tool schedule_appointment."
+                "tool_name": "order_meal_fastpass",
+                "arguments": {"student_id": sid, "kitchen_id": kid, "pickup_time": "13:05", "dining_option": opt, "meal_item": "Suất cơm tiêu chuẩn"},
+                "thought": f"Người dùng yêu cầu đặt suất ăn FastPass cho học viên {sid}. Tôi sẽ gọi tool order_meal_fastpass."
             }
-        elif "sv2026001" in prompt_lower or "tra cứu" in prompt_lower:
+        elif "vé" in prompt_lower or "nhà ăn" in prompt_lower or "bếp" in prompt_lower or "ghế" in prompt_lower or "tra cứu" in prompt_lower:
+            sid = "2A202602840" if "2a202602840" in prompt_lower else "SV2026001"
+            if "sv9999999" in prompt_lower:
+                sid = "SV9999999"
             return {
                 "type": "tool_call",
-                "tool_name": "academic_query",
-                "arguments": {"student_id": "SV2026001"},
-                "thought": "Người dùng muốn tra cứu thông tin học vụ của sinh viên SV2026001. Tôi sẽ gọi tool academic_query."
+                "tool_name": "check_canteen_and_tickets",
+                "arguments": {"student_id": sid},
+                "thought": f"Người dùng muốn tra cứu tình trạng nhà ăn và vé học viên {sid}. Tôi sẽ gọi tool check_canteen_and_tickets."
             }
         else:
             return {
                 "type": "text",
-                "content": f"[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-                "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool."
+                "content": "[Mock Agent Response]: Nhà ăn VinLab phục vụ từ 13h00 - 14h00, sức chứa 500 ghế ngồi cho 1000 học viên, gồm Bếp 1 (Cơm phần) và Bếp 2 (Bún mì & Healthy). Bạn có thể tra cứu vé hoặc đặt trước suất ăn FastPass.",
+                "thought": "Câu hỏi chung về quy chế nhà ăn, trả lời trực tiếp không cần gọi Tool."
             }
 
 
@@ -135,35 +141,37 @@ class GeminiProvider(BaseLLMProvider):
             return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
 
 
-class OpenAIProvider(BaseLLMProvider):
-    """OpenAI Provider (Native Tool Calling với OpenAI SDK)"""
-    def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model_name = model or os.getenv("LLM_MODEL") or "gpt-4o-mini"
+class OpenAICompatibleProvider(BaseLLMProvider):
+    """Generic OpenAI-compatible Provider (Groq, NVIDIA NIM, OpenRouter, etc.)"""
+    def __init__(self, api_key: str, base_url: str, default_model: str, provider_name: str):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.provider_name = provider_name
+        self.model_name = default_model or os.getenv("LLM_MODEL") or "qwen/qwen3.8-27b"
 
     def generate(self, prompt: str, system_prompt: str = "") -> str:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            return "[OpenAI Error]: Chưa cấu hình OPENAI_API_KEY trong file .env! Đang sử dụng chế độ Mock."
+        if not self.api_key or "your_" in self.api_key:
+            return f"[{self.provider_name} Error]: Chưa cấu hình API Key trong file .env!"
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
-            response = client.chat.completions.create(model=self.model_name, messages=messages)
+            response = client.chat.completions.create(model=self.model_name, messages=messages, max_tokens=700)
             return response.choices[0].message.content or ""
         except Exception as e:
-            return f"[OpenAI Exception]: {str(e)}"
+            return f"[{self.provider_name} Exception]: {str(e)}"
 
     def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            print("ℹ️ [OpenAI Provider]: Chưa tìm thấy OPENAI_API_KEY hợp lệ. Tự động chuyển sang Mock Offline.")
+        if not self.api_key or "your_" in self.api_key:
+            print(f"ℹ️ [{self.provider_name} Provider]: Chưa tìm thấy API Key hợp lệ. Chuyển sang Mock Offline.")
             return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
 
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
             tools = []
             for tool in tools_schema:
@@ -187,7 +195,9 @@ class OpenAIProvider(BaseLLMProvider):
                 model=self.model_name,
                 messages=messages,
                 tools=tools if tools else None,
-                tool_choice="auto" if tools else None
+                tool_choice="auto" if tools else None,
+                temperature=0.2,
+                max_tokens=700
             )
 
             msg = response.choices[0].message
@@ -198,36 +208,61 @@ class OpenAIProvider(BaseLLMProvider):
                     "type": "tool_call",
                     "tool_name": call.function.name,
                     "arguments": args,
-                    "thought": f"OpenAI quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
+                    "thought": f"{self.provider_name} ({self.model_name}) quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
                 }
             else:
                 return {
                     "type": "text",
                     "content": msg.content or "",
-                    "thought": "OpenAI phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
+                    "thought": f"{self.provider_name} ({self.model_name}) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
                 }
         except Exception as e:
-            print(f"⚠️ [OpenAI API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
+            print(f"⚠️ [{self.provider_name} API Warning]: Lỗi kết nối ({str(e)}). Fallback về Mock.")
             return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+
+
+class OpenAIProvider(OpenAICompatibleProvider):
+    """OpenAI Provider (Native Tool Calling với OpenAI SDK)"""
+    def __init__(self, api_key: str = None, model: str = None):
+        key = api_key or os.getenv("OPENAI_API_KEY")
+        super().__init__(
+            api_key=key,
+            base_url="https://api.openai.com/v1",
+            default_model=model or os.getenv("LLM_MODEL") or "gpt-4o-mini",
+            provider_name="OpenAI"
+        )
 
 
 def get_llm_provider() -> BaseLLMProvider:
     """Factory function khởi tạo Provider theo LLM_PROVIDER env variable"""
-    provider_type = os.getenv("LLM_PROVIDER", "gemini").lower()
+    provider_type = os.getenv("LLM_PROVIDER", "groq").lower()
     
-    if provider_type == "gemini":
-        key = os.getenv("GEMINI_API_KEY")
-        if key and key != "your_gemini_api_key_here":
-            return GeminiProvider()
-        else:
-            return MockOfflineProvider()
+    if provider_type == "groq":
+        key = os.getenv("GROQ_API_KEY")
+        if key and not key.startswith("your_"):
+            return OpenAICompatibleProvider(
+                api_key=key,
+                base_url="https://api.groq.com/openai/v1",
+                default_model="qwen/qwen3.8-27b",
+                provider_name="Groq"
+            )
+    elif provider_type == "nvidia":
+        key = os.getenv("NVIDIA_API_KEY")
+        if key and not key.startswith("your_"):
+            return OpenAICompatibleProvider(
+                api_key=key,
+                base_url="https://integrate.api.nvidia.com/v1",
+                default_model="meta/llama-3.3-70b-instruct",
+                provider_name="NVIDIA NIM"
+            )
     elif provider_type == "openai":
         key = os.getenv("OPENAI_API_KEY")
-        if key and key != "your_openai_api_key_here":
+        if key and not key.startswith("your_"):
             return OpenAIProvider()
-        else:
-            return MockOfflineProvider()
-    elif provider_type == "mock":
-        return MockOfflineProvider()
-    else:
-        return MockOfflineProvider()
+    elif provider_type == "gemini":
+        key = os.getenv("GEMINI_API_KEY")
+        if key and not key.startswith("your_"):
+            return GeminiProvider()
+
+    # Fallback to Mock Offline
+    return MockOfflineProvider()

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Chào bạn, nhà ăn VinLab có sức chứa bao nhiêu chỗ, giờ mở cửa ăn trưa là khi nào và có những bếp nào phục vụ?",
+    "expected_behavior": "Chatbot/Agent trả lời trực tiếp từ System Prompt về sức chứa 500 ghế cho 1000 học viên, giờ ăn 13h-14h và 2 bếp độc lập, không cần gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "single_tool_query",
+    "question": "Hãy kiểm tra tình trạng số ghế trống của nhà ăn và thông tin thẻ vé tháng của học viên Trần Tuấn Tú mã số 2A202602840.",
+    "expected_behavior": "Agent nhận diện nhu cầu tra cứu, tự động phát sinh Tool Call 'check_canteen_and_tickets' với mã 2A202602840 và tổng hợp kết quả số ghế còn lại kèm số lượt vé tháng.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "appointment_booking",
+    "question": "Tôi là học viên SV2026002 (chưa có vé tháng). Hãy đặt trước giúp tôi 1 suất Bún chả Hà Nội ở Bếp 2 vào lúc 13:05 và đóng hộp mang về phòng tự học (takeaway).",
+    "expected_behavior": "Agent tự động phát sinh Tool Call 'order_meal_fastpass' với kitchen_id='bep_2', pickup_time='13:05', dining_option='takeaway', student_id='SV2026002' và trả về mã FastPass kèm mã VietQR thanh toán 35.000đ.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Tôi là học viên 2A202602840. Giờ nghỉ trưa chỉ có 60 phút mà 1000 người ùa xuống, bạn hãy kiểm tra xem hiện tại Bếp 1 hay Bếp 2 đang ít người hơn và nhà ăn còn ghế không; sau đó tự động đặt luôn cho tôi 1 suất ở bếp thông thoáng nhất vào lúc 13:10 mang về phòng học để kịp nghỉ trưa.",
+    "expected_behavior": "Agent thực hiện chuỗi suy luận ReAct đa bước: Gọi 'check_canteen_and_tickets' so sánh tải 2 bếp và số ghế trống trước, thấy Bếp 2 chỉ chờ 4 phút (Bếp 1 chờ 25 phút), sau đó tiếp tục gọi 'order_meal_fastpass' đặt Bếp 2 takeaway cho 2A202602840 và xuất mã FastPass.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Tra cứu thông tin vé và đặt suất ăn cho học viên có mã SV9999999.",
+    "expected_behavior": "Agent nhận kết quả NOT_FOUND từ Tool do mã học viên không tồn tại trong cơ sở dữ liệu và đưa ra phản hồi lịch sự, chính xác, không bịa đặt dữ liệu (Anti-Hallucination).",
+    "complexity": "Medium"
+  }
+]
