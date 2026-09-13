@@ -8,8 +8,12 @@ import sys
 import json
 import time
 import requests
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
+from dotenv import load_dotenv
+
+# Cache model results to prevent repeated slow outbound network calls
+_MODEL_CACHE = {}
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -1091,53 +1095,59 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
     def fetch_live_models_from_provider(self, provider: str, custom_key: str = None) -> list:
         """CURL trực tiếp vào /models của base URL tương ứng và lọc top models đại trà, chất lượng cao"""
         provider = provider.lower()
-        
+        cache_key = f"{provider}_{custom_key or 'default'}"
+        now = time.time()
+        if cache_key in _MODEL_CACHE and (now - _MODEL_CACHE[cache_key]["ts"] < 300):
+            return _MODEL_CACHE[cache_key]["models"]
+
+        models_result = []
         if provider == "groq":
             key = custom_key or os.getenv("GROQ_API_KEY")
             if not key or "your_" in key:
-                return [
+                models_result = [
                     {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng - Quota cao, suy luận chuẩn)"},
                     {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b (Model lớn 120B thông minh)"},
                     {"id": "openai/gpt-oss-20b", "name": "openai/gpt-oss-20b (Model 20B siêu nhanh)"},
                     {"id": "qwen/qwen3.6-27b", "name": "qwen/qwen3.6-27b (Qwen 27B ổn định)"}
                 ]
-            try:
-                r = requests.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=4)
-                if r.status_code == 200:
-                    raw = r.json().get("data", [])
-                    # Chỉ lấy các model nổi tiếng: Qwen, GPT-OSS, Llama (loại bỏ whisper, guard, orpheus, allam)
-                    popular = [m["id"] for m in raw if any(p in m["id"].lower() for p in ["qwen", "gpt-oss", "llama"])]
-                    sorted_models = sorted(popular, key=lambda x: ("qwen3.8" not in x, "120b" not in x, "20b" not in x))
-                    return [{"id": m, "name": f"{m} (Live Groq)"} for m in sorted_models[:4]]
-            except Exception:
-                pass
-            return [
-                {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng)"},
-                {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b"},
-                {"id": "openai/gpt-oss-20b", "name": "openai/gpt-oss-20b"}
-            ]
+            else:
+                try:
+                    r = requests.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=2)
+                    if r.status_code == 200:
+                        raw = r.json().get("data", [])
+                        popular = [m["id"] for m in raw if any(p in m["id"].lower() for p in ["qwen", "gpt-oss", "llama"])]
+                        sorted_models = sorted(popular, key=lambda x: ("qwen3.8" not in x, "120b" not in x, "20b" not in x))
+                        models_result = [{"id": m, "name": f"{m} (Live Groq)"} for m in sorted_models[:4]]
+                except Exception:
+                    pass
+                if not models_result:
+                    models_result = [
+                        {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng)"},
+                        {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b"},
+                        {"id": "openai/gpt-oss-20b", "name": "openai/gpt-oss-20b"}
+                    ]
 
         elif provider == "nvidia":
             key = custom_key or os.getenv("NVIDIA_API_KEY")
             if key and "your_" not in key:
                 try:
-                    r = requests.get("https://integrate.api.nvidia.com/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=4)
+                    r = requests.get("https://integrate.api.nvidia.com/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=2)
                     if r.status_code == 200:
                         raw = r.json().get("data", [])
-                        # Chỉ lấy các model đại trà chất lượng: DeepSeek, Llama 70B, Mistral Large (loại bỏ Granite, code, whisper)
                         selected = [m["id"] for m in raw if any(p in m["id"].lower() for p in ["deepseek-v4", "llama-3.1-70b", "llama-3.3-70b", "mistral-large"])]
                         if selected:
-                            return [{"id": m, "name": f"{m} (Live NVIDIA NIM)"} for m in selected[:4]]
+                            models_result = [{"id": m, "name": f"{m} (Live NVIDIA NIM)"} for m in selected[:4]]
                 except Exception:
                     pass
-            return [
-                {"id": "deepseek-ai/deepseek-v4-flash-0731", "name": "deepseek-ai/deepseek-v4-flash (DeepSeek live)"},
-                {"id": "meta/llama-3.1-70b-instruct", "name": "meta/llama-3.1-70b-instruct (Llama 70B)"},
-                {"id": "meta/llama-3.3-70b-instruct", "name": "meta/llama-3.3-70b-instruct (Llama 70B v3.3)"}
-            ]
+            if not models_result:
+                models_result = [
+                    {"id": "deepseek-ai/deepseek-v4-flash-0731", "name": "deepseek-ai/deepseek-v4-flash (DeepSeek live)"},
+                    {"id": "meta/llama-3.1-70b-instruct", "name": "meta/llama-3.1-70b-instruct (Llama 70B)"},
+                    {"id": "meta/llama-3.3-70b-instruct", "name": "meta/llama-3.3-70b-instruct (Llama 70B v3.3)"}
+                ]
 
         elif provider == "gemini":
-            return [
+            models_result = [
                 {"id": "gemini-2.5-flash", "name": "gemini-2.5-flash (Top 1 Quota 1M TPM)"},
                 {"id": "gemini-1.5-flash", "name": "gemini-1.5-flash (Quota 1M TPM)"},
                 {"id": "gemini-1.5-pro", "name": "gemini-1.5-pro (Suy luận sâu)"}
@@ -1147,22 +1157,26 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             key = custom_key or os.getenv("OPENAI_API_KEY")
             if key and "your_" not in key:
                 try:
-                    r = requests.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=4)
+                    r = requests.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=2)
                     if r.status_code == 200:
                         raw = r.json().get("data", [])
                         gpt_models = [m["id"] for m in raw if "gpt-4" in m["id"] or "gpt-3.5" in m["id"]]
-                        return [{"id": m, "name": f"{m} (Live OpenAI)"} for m in gpt_models[:5]]
+                        models_result = [{"id": m, "name": f"{m} (Live OpenAI)"} for m in gpt_models[:5]]
                 except Exception:
                     pass
-            return [
-                {"id": "gpt-4o-mini", "name": "gpt-4o-mini (Chuẩn OpenAI)"},
-                {"id": "gpt-4o", "name": "gpt-4o"}
-            ]
+            if not models_result:
+                models_result = [
+                    {"id": "gpt-4o-mini", "name": "gpt-4o-mini (Chuẩn OpenAI)"},
+                    {"id": "gpt-4o", "name": "gpt-4o"}
+                ]
 
         else:
-            return [
+            models_result = [
                 {"id": "mock-offline", "name": "Mock Offline Model (0đ không tốn token)"}
             ]
+
+        _MODEL_CACHE[cache_key] = {"ts": now, "models": models_result}
+        return models_result
 
     def resolve_provider(self, provider_name: str, model_name: str, custom_key: str):
         provider_name = (provider_name or "groq").lower()
@@ -1324,7 +1338,7 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
 
 def run_web_server(port: int = 8080):
     server_address = ("", port)
-    httpd = HTTPServer(server_address, CanteenAgentHTTPHandler)
+    httpd = ThreadingHTTPServer(server_address, CanteenAgentHTTPHandler)
     print("==========================================================")
     print("🌐 VINLAB CANTEEN FASTPASS REACT AGENT - DYNAMIC DASHBOARD")
     print(f"🚀 Dashboard đang chạy tại: http://localhost:{port}")
@@ -1335,6 +1349,7 @@ def run_web_server(port: int = 8080):
     except KeyboardInterrupt:
         print("\n👋 Đã dừng Web Dashboard.")
         httpd.server_close()
+
 
 
 if __name__ == "__main__":
