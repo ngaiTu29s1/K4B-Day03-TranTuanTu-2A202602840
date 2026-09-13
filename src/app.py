@@ -162,6 +162,14 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
             tool_name = llm_response.get("tool_name")
             arguments = llm_response.get("arguments", {})
             
+            # GUARDRAIL: Ngăn chặn model bị ảo giác tự gọi tool order_meal_fastpass khi người dùng chỉ hỏi tra cứu
+            if tool_name == "order_meal_fastpass":
+                order_keywords = ["đặt", "order", "mua", "lấy suất", "book"]
+                user_wants_order = any(kw in user_query.lower() for kw in order_keywords) and not any(kw in user_query.lower() for kw in ["không đặt", "chưa đặt", "hủy đặt"])
+                if not user_wants_order:
+                    tool_name = "check_canteen_and_tickets"
+                    arguments = {"student_id": sid}
+
             if HAS_RICH:
                 args_str = json.dumps(arguments, ensure_ascii=False)
                 console.print(f"[bold yellow]🛠️ [Action Proposed]:[/bold yellow] [bold green]{tool_name}[/bold green]({args_str})")

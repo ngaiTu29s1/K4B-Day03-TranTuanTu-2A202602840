@@ -1089,28 +1089,32 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def fetch_live_models_from_provider(self, provider: str, custom_key: str = None) -> list:
-        """CURL trực tiếp vào /models của base URL tương ứng để lấy danh sách model thực tế"""
+        """CURL trực tiếp vào /models của base URL tương ứng và lọc top models đại trà, chất lượng cao"""
         provider = provider.lower()
         
         if provider == "groq":
             key = custom_key or os.getenv("GROQ_API_KEY")
             if not key or "your_" in key:
                 return [
-                    {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng - Quota cao)"},
-                    {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b"}
+                    {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng - Quota cao, suy luận chuẩn)"},
+                    {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b (Model lớn 120B thông minh)"},
+                    {"id": "openai/gpt-oss-20b", "name": "openai/gpt-oss-20b (Model 20B siêu nhanh)"},
+                    {"id": "qwen/qwen3.6-27b", "name": "qwen/qwen3.6-27b (Qwen 27B ổn định)"}
                 ]
             try:
                 r = requests.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=4)
                 if r.status_code == 200:
                     raw = r.json().get("data", [])
-                    filtered = [m["id"] for m in raw if "whisper" not in m["id"] and "guard" not in m["id"]]
-                    sorted_models = sorted(filtered, key=lambda x: ("qwen" not in x, "120b" not in x))
-                    return [{"id": m, "name": f"{m} (Live Groq)"} for m in sorted_models[:6]]
+                    # Chỉ lấy các model nổi tiếng: Qwen, GPT-OSS, Llama (loại bỏ whisper, guard, orpheus, allam)
+                    popular = [m["id"] for m in raw if any(p in m["id"].lower() for p in ["qwen", "gpt-oss", "llama"])]
+                    sorted_models = sorted(popular, key=lambda x: ("qwen3.8" not in x, "120b" not in x, "20b" not in x))
+                    return [{"id": m, "name": f"{m} (Live Groq)"} for m in sorted_models[:4]]
             except Exception:
                 pass
             return [
                 {"id": "qwen/qwen3.8-27b", "name": "qwen/qwen3.8-27b (Khuyên dùng)"},
-                {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b"}
+                {"id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b"},
+                {"id": "openai/gpt-oss-20b", "name": "openai/gpt-oss-20b"}
             ]
 
         elif provider == "nvidia":
@@ -1120,13 +1124,16 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
                     r = requests.get("https://integrate.api.nvidia.com/v1/models", headers={"Authorization": f"Bearer {key}"}, timeout=4)
                     if r.status_code == 200:
                         raw = r.json().get("data", [])
-                        instruct_models = [m["id"] for m in raw if "instruct" in m["id"] or "llama" in m["id"]]
-                        return [{"id": m, "name": f"{m} (Live NVIDIA NIM)"} for m in instruct_models[:6]]
+                        # Chỉ lấy các model đại trà chất lượng: DeepSeek, Llama 70B, Mistral Large (loại bỏ Granite, code, whisper)
+                        selected = [m["id"] for m in raw if any(p in m["id"].lower() for p in ["deepseek-v4", "llama-3.1-70b", "llama-3.3-70b", "mistral-large"])]
+                        if selected:
+                            return [{"id": m, "name": f"{m} (Live NVIDIA NIM)"} for m in selected[:4]]
                 except Exception:
                     pass
             return [
-                {"id": "meta/llama-3.3-70b-instruct", "name": "meta/llama-3.3-70b-instruct (NVIDIA)"},
-                {"id": "nvidia/llama-3.1-nemotron-70b-instruct", "name": "llama-3.1-nemotron-70b (NVIDIA)"}
+                {"id": "deepseek-ai/deepseek-v4-flash-0731", "name": "deepseek-ai/deepseek-v4-flash (DeepSeek live)"},
+                {"id": "meta/llama-3.1-70b-instruct", "name": "meta/llama-3.1-70b-instruct (Llama 70B)"},
+                {"id": "meta/llama-3.3-70b-instruct", "name": "meta/llama-3.3-70b-instruct (Llama 70B v3.3)"}
             ]
 
         elif provider == "gemini":
@@ -1229,6 +1236,15 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             elif llm_response.get("type") == "tool_call":
                 tool_name = llm_response.get("tool_name")
                 arguments = llm_response.get("arguments", {})
+
+                # GUARDRAIL: Ngăn chặn model bị ảo giác tự gọi tool order_meal_fastpass khi người dùng chỉ hỏi tra cứu
+                if tool_name == "order_meal_fastpass":
+                    order_keywords = ["đặt", "order", "mua", "lấy suất", "book"]
+                    user_wants_order = any(kw in user_query.lower() for kw in order_keywords) and not any(kw in user_query.lower() for kw in ["không đặt", "chưa đặt", "hủy đặt"])
+                    if not user_wants_order:
+                        tool_name = "check_canteen_and_tickets"
+                        arguments = {"student_id": sid}
+
                 mcp_result = self.mcp_server.call_tool(tool_name, arguments)
                 obs_data = mcp_result.get("result", {})
                 obs_str = json.dumps(obs_data, ensure_ascii=False)
