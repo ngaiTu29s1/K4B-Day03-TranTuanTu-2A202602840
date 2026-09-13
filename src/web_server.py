@@ -682,11 +682,16 @@ HTML_CONTENT = r"""<!DOCTYPE html>
         const m = document.getElementById("modelSelect").value;
         const k = document.getElementById("customApiKey").value;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: query, provider: p, model: m, api_key: k, student_id: currentStudentId })
+          body: JSON.stringify({ query: query, provider: p, model: m, api_key: k, student_id: currentStudentId }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const data = await response.json();
         document.getElementById(loadingId)?.remove();
@@ -742,9 +747,18 @@ HTML_CONTENT = r"""<!DOCTYPE html>
 
       } catch (err) {
         document.getElementById(loadingId)?.remove();
+        let errMsg = err.message;
+        if (err.name === "AbortError") {
+          errMsg = "⏱️ Yêu cầu phản hồi quá 20s (Timeout). Model có thể đang bị nghẽn mạng hoặc chạm hạn mức Quota. Vui lòng thử lại hoặc chọn Model khác!";
+        }
         chatBox.innerHTML += `
-          <div class="p-3 bg-red-950/80 border border-red-800 rounded-xl text-xs text-red-300">
-            Lỗi kết nối: ${err.message}
+          <div class="p-3.5 bg-red-950/80 border border-red-800 rounded-xl text-xs text-red-300 flex items-start gap-2.5 shadow-lg">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+            <div class="space-y-1">
+              <div class="font-bold text-red-200">Không thể hoàn thành yêu cầu:</div>
+              <div>${errMsg}</div>
+              <div class="text-[11px] text-gray-400">💡 Gợi ý: Chuyển sang model <code>qwen/qwen3.8-27b</code> hoặc <code>Mock Offline</code> để tiếp tục mà không tốn quota.</div>
+            </div>
           </div>
         `;
       } finally {
@@ -1055,34 +1069,57 @@ class CanteenAgentHTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "UPDATED", "db": CANTEEN_DB}, ensure_ascii=False).encode("utf-8"))
 
         elif parsed.path == "/api/chat":
-            query = req_data.get("query", "")
-            student_id = req_data.get("student_id", "2A202602840")
-            provider_name = req_data.get("provider", "groq")
-            model_name = req_data.get("model")
-            custom_key = req_data.get("api_key")
+            try:
+                query = req_data.get("query", "")
+                student_id = req_data.get("student_id", "2A202602840")
+                provider_name = req_data.get("provider", "groq")
+                model_name = req_data.get("model")
+                custom_key = req_data.get("api_key")
 
-            # Khởi tạo Provider theo lựa chọn trên Web
-            provider = self.resolve_provider(provider_name, model_name, custom_key)
+                # Khởi tạo Provider theo lựa chọn trên Web
+                provider = self.resolve_provider(provider_name, model_name, custom_key)
 
-            # Thực thi ReAct Loop với session context học viên
-            trace_logs = self.execute_react_agent(query, provider, student_id)
-            final_answer = ""
-            for log in reversed(trace_logs):
-                if log.get("action_type") == "FINAL_ANSWER":
-                    final_answer = log.get("output", "")
-                    break
+                # Thực thi ReAct Loop với session context học viên
+                trace_logs = self.execute_react_agent(query, provider, student_id)
+                final_answer = ""
+                for log in reversed(trace_logs):
+                    if log.get("action_type") == "FINAL_ANSWER":
+                        final_answer = log.get("output", "")
+                        break
 
-            # Cập nhật vào trace_waterfall.json
-            self.append_trace_logs(trace_logs)
+                # Cập nhật vào trace_waterfall.json
+                self.append_trace_logs(trace_logs)
 
-            response_payload = {
-                "status": "SUCCESS",
-                "query": query,
-                "provider": getattr(provider, "provider_name", None) or provider.__class__.__name__.replace("Provider", ""),
-                "model": getattr(provider, "model_name", "N/A"),
-                "final_answer": final_answer,
-                "trace_logs": trace_logs
-            }
+                response_payload = {
+                    "status": "SUCCESS",
+                    "query": query,
+                    "provider": getattr(provider, "provider_name", None) or provider.__class__.__name__.replace("Provider", ""),
+                    "model": getattr(provider, "model_name", "N/A"),
+                    "final_answer": final_answer,
+                    "trace_logs": trace_logs
+                }
+            except Exception as e:
+                err_msg = str(e)
+                print(f"❌ [/api/chat Error]: {err_msg}")
+                response_payload = {
+                    "status": "ERROR",
+                    "query": req_data.get("query", ""),
+                    "provider": req_data.get("provider", "System"),
+                    "model": req_data.get("model", "N/A"),
+                    "final_answer": (
+                        f"⚠️ **Đã xảy ra lỗi:** `{err_msg}`\n\n"
+                        "💡 **Khắc phục:** Model có thể đã chạm giới hạn Quota hoặc kết nối mạng bị gián đoạn. "
+                        "Vui lòng thử đổi sang `qwen/qwen3.8-27b` hoặc `Mock Offline`!"
+                    ),
+                    "trace_logs": [{
+                        "step": 1,
+                        "query": req_data.get("query", ""),
+                        "action_type": "FINAL_ANSWER",
+                        "thought": f"Bắt ngoại lệ an toàn: {err_msg}",
+                        "output": f"⚠️ Lỗi: {err_msg}",
+                        "latency_ms": 10.0
+                    }]
+                }
 
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")

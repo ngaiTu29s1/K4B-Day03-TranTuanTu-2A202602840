@@ -2513,5 +2513,1264 @@
     "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
     "output": "🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n- 🎫 **Mã E-Ticket FastPass:** `FASTPASS-BEP_2-1315-2840`\n- 👤 **Học viên:** Trần Tuấn Tú (2A202602840)\n- 🍽️ **Bếp phục vụ:** Bếp 2 (Bún mì & Healthy)\n- 🍱 **Món ăn:** Bún chả\n- ⏱️ **Khung giờ nhận đồ:** **13:15**\n- 📦 **Hình thức:** Mang về phòng tự học (Takeaway box)\n- 💳 **Xử lý vé/thanh toán:** Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: 17/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công).\n\n👉 **Hướng dẫn:** Đúng 13:15, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1315-2840 để lấy đồ trong 30 giây không cần xếp hàng!",
     "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Nhà ăn VinLab mở cửa lúc mấy giờ, sức chứa bao nhiêu và có những bếp nào?",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn **Trần Tuấn Tú (2A202602840)**! 👋\n\nDưới đây là thông tin chi tiết về Nhà ăn VinLab:\n\n🕐 **Giờ mở cửa ăn trưa:**\n- DUY NHẤT từ **13h00 đến 14h00** (nghỉ trưa đúng 60 phút ngay sau ca tan học sáng 13h00).\n\n🪑 **Sức chứa:**\n- **500 chỗ ngồi** — tuy nhiên có tới 1.000 học viên tan học cùng lúc 13h00 nên thường xuyên quá tải.\n\n🍳 **2 Bếp phục vụ:**\n1. **Bếp 1** – Cơm phần truyền thống (cơm sườn nướng, cơm gà xối mỡ, cá kho tộ) — thường ùn ứ cao điểm 15–25 phút.\n2. **Bếp 2** – Bún mì & Healthy (bún chả than hoa, mì gà tần, cơm Eat Clean) — thường thông thoáng dưới 5 phút.\n\n💡 **Mẹo nhỏ:** Nếu bạn muốn ăn nhanh và tránh xếp hàng, Bếp 2 là lựa chọn tốt hơn. Bạn cũng có thể đặt trước suất ăn qua FastPass để nhận đồ trong 30 giây tại làn ưu tiên.\n\nBạn có muốn mình kiểm tra tình trạng nhà ăn hiện tại hoặc đặt suất ăn trưa không? 😊",
+    "latency_ms": 2612.98
+  },
+  {
+    "step": 1,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số 2A202602840.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 4593.22
+  },
+  {
+    "step": 2,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số 2A202602840.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào em **Trần Tuấn Tú** (MSSV: 2A202602840 - K4B Lớp Chiều)! 👋\n\nDưới đây là kết quả kiểm tra tình trạng nhà ăn và thẻ vé của em:\n\n### 🎫 THÔNG TIN THẺ VÉ\n- **Loại thẻ:** Vé tháng (VE_THANG)\n- **Mã thẻ:** PASS-K4B-2A202602840\n- **Trạng thái:** ✅ HỢP LỆ\n- **Số lượt còn lại:** **18/30 lượt**\n- **Thanh toán:** Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công).\n\n### 🍽️ TÌNH TRẠNG NHÀ ĂN VINLAB (Giờ cao điểm 13h00 - 14h00)\n- **Sức chứa:** 500 chỗ ngồi\n- **Mức tải hiện tại:** ⚠️ **CAO ĐIỂM (~90% công suất)** - Chỉ còn khoảng 30-40 ghế rải rác.\n- **Cảnh báo:** Nhà ăn đang gần kín chỗ do 1.000 học viên cùng tan ca sáng.\n\n### 📊 TẢI CỦA 2 BẾP & THỰC ĐƠN HÔM NAY\n| Bếp | Trạng thái | Thời gian chờ | Thực đơn nổi bật |\n| :--- | :--- | :--- | :--- |\n| **Bếp 1** (Cơm phần truyền thống) | 🔴 ÙN Ứ CAO ĐIỂM | 15 - 25 phút | Cơm sườn nướng mật ong (35k), Cơm gà xối mỡ (35k), Cơm cá hồi kho tộ (40k - SẮP HẾT) |\n| **Bếp 2** (Bún mì & Healthy) | 🟢 THÔNG THOÁNG | Dưới 5 phút | Bún chả Hà Nội than hoa (35k), Mì gà tần thảo mộc (40k), Cơm Eat Clean ức gà (40k) |\n\n### 💡 GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG\n1. **Về chọn bếp:** Bếp 1 đang ùn ứ (chờ 15-25p), em nên ưu tiên **Bếp 2** để tiết kiệm thời gian nghỉ trưa.\n2. **Về hình thức ăn:** Vì nhà ăn đang ở mức tải ~90% (gần kín chỗ), hệ thống khuyến nghị em chọn hình thức **TAKEAWAY (đóng hộp mang về phòng tự học)** để không phải chờ đợi tìm ghế, đảm bảo nghỉ ngơi trọn vẹn 1 tiếng.\n\nNếu em muốn đặt trước suất ăn để nhận đồ nhanh qua làn FastPass, em cứ báo cho anh biết món muốn ăn và khung giờ nhận đồ nhé! 😊",
+    "latency_ms": 2045.63
+  },
+  {
+    "step": 1,
+    "query": "tôi là ai",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn! 👋\n\nDựa trên tài khoản đang đăng nhập trong phiên này, thông tin của bạn là:\n\n- **Họ và tên:** Trần Tuấn Tú\n- **Mã số học viên (MSSV):** 2A202602840\n- **Khóa học:** K4B (Lớp Chiều, học 9h–18h)\n- **Loại thẻ vé:** Vé tháng (VE_THANG) – còn 18 lượt bấm\n\nBạn cần mình hỗ trợ gì tiếp theo không? Ví dụ: kiểm tra tình trạng nhà ăn, số ghế trống, thực đơn hôm nay, hay đặt trước suất ăn trưa với mã FastPass nhé! 🍽️",
+    "latency_ms": 1046.35
+  },
+  {
+    "step": 1,
+    "query": "có những sinh viên nào",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn Trần Tuấn Tú (MSSV: 2A202602840)! 👋\n\nHiện tại, hệ thống trợ lý này **không có công cụ tra cứu danh sách sinh viên** khác trong khóa học hay lớp của bạn. Tôi chỉ được trang bị các công cụ hỗ trợ liên quan đến **nhà ăn VinLab** (tra cứu ghế trống, tình trạng 2 bếp, thực đơn, thẻ vé) và **đặt suất ăn FastPass**.\n\nNếu bạn cần danh sách sinh viên trong lớp K4B hoặc khóa học, bạn vui lòng liên hệ trực tiếp với **Cố vấn học vụ** hoặc **Phòng Đào tạo VinUni** để được hỗ trợ chính xác nhất.\n\nTuy nhiên, nếu bạn đang quan tâm đến **tình trạng nhà ăn trưa hôm nay** (số ghế trống, mức độ ùn ứ của Bếp 1 & Bếp 2, thực đơn) hoặc muốn **kiểm tra thẻ vé tháng** của mình, tôi có thể tra cứu ngay cho bạn. Bạn cần tôi hỗ trợ điều gì? 😊",
+    "latency_ms": 16295.7
+  },
+  {
+    "step": 1,
+    "query": "tra cứu nguyễn văn an",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "NGUYEN VAN AN"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "student_id": "NGUYEN VAN AN",
+      "message": "Không tìm thấy dữ liệu học viên mã 'NGUYEN VAN AN' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số."
+    },
+    "latency_ms": 1110.32
+  },
+  {
+    "step": 2,
+    "query": "tra cứu nguyễn văn an",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Không tìm thấy dữ liệu học viên mã 'NGUYEN VAN AN' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "tôi là ai đây",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn! 👋\n\nBạn đang đăng nhập với tài khoản:\n\n- **Họ và tên:** Nguyễn Văn An\n- **Mã số học viên (MSSV):** SV2026001\n- **Khóa học:** AI-K4A\n- **Loại thẻ vé:** Vé tháng (VE_THANG) — còn **5 lượt bấm**\n\nBạn cần mình hỗ trợ gì nào? Ví dụ:\n- 🍚 Tra cứu tình trạng nhà ăn VinLab (ghế trống, tải 2 bếp, thực đơn hôm nay)\n- 🎫 Kiểm tra chi tiết thẻ vé của bạn\n- 📦 Đặt trước suất ăn trưa + nhận mã FastPass\n\nCứ nói nhé! 😊",
+    "latency_ms": 5458.7
+  },
+  {
+    "step": 1,
+    "query": "tra cứu nguyễn văn an",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "student_info": {
+        "full_name": "Nguyễn Văn An",
+        "cohort": "AI-K4A",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4A-SV2026001",
+        "total_punches": 30,
+        "remaining_punches": 5,
+        "ticket_status": "HỢP LỆ (Còn 5 lượt bấm lỗ)",
+        "payment_method": "Vé tháng - Sắp hết lượt, cần gia hạn tháng tới"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 18013.09
+  },
+  {
+    "step": 2,
+    "query": "tra cứu nguyễn văn an",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn **Nguyễn Văn An** (MSSV: SV2026001 - Khóa AI-K4A)! 👋\n\nDưới đây là kết quả tra cứu chi tiết về tài khoản và tình trạng nhà ăn VinLab hiện tại:\n\n### 🎫 1. THÔNG TIN THẺ VÉ CỦA BẠN\n- **Loại thẻ:** Vé tháng (VE_THANG)\n- **Mã thẻ:** PASS-K4A-SV2026001\n- **Trạng thái:** ✅ **HỢP LỆ**\n- **Số lượt còn lại:** ⚠️ **Còn 5 lượt bấm lỗ** (Tổng 30 lượt)\n- **Lưu ý quan trọng:** Vé tháng của bạn **sắp hết lượt**, bạn nên cân nhắc gia hạn cho tháng tới để không bị gián đoạn nhé!\n\n### 🍽️ 2. TÌNH TRẠNG NHÀ ĂN VINLAB HIỆN TẠI\n- **Sức chứa:** 500 chỗ ngồi\n- **Công suất hiện tại:** 🔴 **CAO ĐIỂM (~90%)** - Chỉ còn khoảng 30-40 ghế rải rác.\n- **Khung giờ cao điểm:** 13:00 - 14:00 (1.000 học viên cùng tan ca sáng)\n\n### 🏪 3. TẢI LƯỢNG 2 BẾP & THỰC ĐƠN HÔM NAY\n\n| Bếp | Trạng thái | Thời gian chờ | Thực đơn nổi bật |\n| :--- | :--- | :--- | :--- |\n| **Bếp 1** (Cơm phần truyền thống) | 🔴 ÙN Ứ CAO ĐIỂM | 15 - 25 phút | Cơm sườn nướng mật ong (35k), Cơm gà xối mỡ (35k), Cơm cá hồi kho tộ (40k - Sắp hết) |\n| **Bếp 2** (Bún mì & Healthy) | 🟢 THÔNG THOÁNG | Dưới 5 phút | Bún chả than hoa (35k), Mì gà tần (40k), Cơm Eat Clean ức gà (40k) |\n\n### 💡 4. GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG\n1. **Về bếp:** Bếp 1 đang rất đông (chờ 15-25p), hệ thống **khuyên bạn chọn Bếp 2** (thông thoáng, chờ dưới 5p) để kịp nghỉ trưa trọn vẹn.\n2. **Về hình thức ăn:** Do nhà ăn đang gần kín chỗ (~90%), hệ thống **khuyên bạn chọn hình thức TAKEAWAY** (đóng hộp mang về phòng tự học) để không phải xếp hàng chờ tìm ghế.\n\n---\n*Nếu bạn muốn **đặt trước suất ăn** (ví dụ: đặt Bún chả Hà Nội tại Bếp 2, nhận lúc 13:05, mang về phòng) để được cấp mã FastPass nhận đồ nhanh trong 30 giây, bạn chỉ cần nói **\"Đặt suất ăn cho tôi\"** nhé!* 😊",
+    "latency_ms": 29366.23
+  },
+  {
+    "step": 1,
+    "query": "tra cứu nguyễn văn an tra cứu nguyễn văn an",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "student_info": {
+        "full_name": "Nguyễn Văn An",
+        "cohort": "AI-K4A",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4A-SV2026001",
+        "total_punches": 30,
+        "remaining_punches": 5,
+        "ticket_status": "HỢP LỆ (Còn 5 lượt bấm lỗ)",
+        "payment_method": "Vé tháng - Sắp hết lượt, cần gia hạn tháng tới"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 858.54
+  },
+  {
+    "step": 2,
+    "query": "tra cứu nguyễn văn an tra cứu nguyễn văn an",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (openai/gpt-oss-20b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "**Thông tin của bạn – Nguyễn Văn An (SV2026001)**  \n\n| Nội dung | Thông tin |\n|----------|-----------|\n| **Họ tên** | Nguyễn Văn An |\n| **Khóa học** | AI‑K4A |\n| **Loại thẻ vé** | Vé tháng (VE_THANG) |\n| **Số lần bấm còn lại** | 5 lượt (tổng 30 lượt, còn 5 lượt bấm) |\n| **Trạng thái thẻ** | HỢP LỆ – cần gia hạn tháng tới |\n| **Phương thức thanh toán** | Vé tháng – Sắp hết lượt, cần gia hạn |\n\n---\n\n### Nhà ăn VinLab (giờ 13:00‑14:00)\n\n| Thông tin | Trạng thái |\n|-----------|------------|\n| **Sức chứa** | 500 ghế |\n| **Tình trạng ghế** | Gần kín chỗ (~90 % công suất), còn khoảng 30‑40 ghế rải rác |\n| **Cảnh báo** | Nhà ăn đang ở mức tải cao điểm (~90 % ghế). Khuyến nghị chọn **Takeaway** (đóng hộp) để mang về phòng tự học, tránh chờ ghế. |\n\n---\n\n### Tình trạng 2 bếp\n\n| Bếp | Tình trạng | Thời gian chờ ước tính | Thực đơn hôm nay |\n|-----|------------|------------------------|-------------------|\n| **Bếp 1 – Cơm phần truyền thống** | **ÙN Ứ cao điểm** | 15‑25 phút | • Cơm sườn nướng mật ong – còn hàng<br>• Cơm gà xối mỡ giòn rụm – còn hàng<br>• Cơm cá hồi kho tộ – sắp hết |\n| **Bếp 2 – Bún mì & Healthy** | **Thông thoáng** | < 5 phút | • Bún chả Hà Nội than hoa – còn hàng<br>• Mì gà tần thảo mộc – còn hàng<br>• Suất cơm Eat Clean ức gà sốt bơ đậu phộng – còn hàng |\n\n---\n\n### Gợi ý từ hệ thống phân luồng\n\n- **Bếp 1** đang rất đông, nên nếu muốn ăn tại chỗ bạn sẽ phải chờ 15‑25 phút.  \n- **Bếp 2** còn trống, thời gian chờ dưới 5 phút, thích hợp cho những người muốn nhanh chóng ăn trưa.  \n- Vì nhà ăn gần kín ghế, **đ",
+    "latency_ms": 1701.76
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (openai/gpt-oss-20b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "",
+    "latency_ms": 1697.25
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV2026001. Hãy đặt trước giúp tôi 1 suất Bún chả ở Bếp 2 vào lúc 13:05 và đóng hộp mang về phòng tự học (takeaway).",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "order_meal_fastpass",
+    "arguments": {
+      "dining_option": "takeaway",
+      "kitchen_id": "bep_2",
+      "meal_item": "Bún chả",
+      "pickup_time": "13:05",
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "fastpass_code": "FASTPASS-BEP_2-1305-6001",
+      "student_id": "SV2026001",
+      "student_name": "Nguyễn Văn An",
+      "kitchen": "Bếp 2 (Bún mì & Healthy)",
+      "meal_item": "Bún chả",
+      "pickup_time": "13:05",
+      "dining_option": "Mang về phòng tự học (Takeaway box)",
+      "ticket_processing": "Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: 4/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công).",
+      "payment_status": "Đã thanh toán (Vé tháng)",
+      "pickup_instructions": "Đúng 13:05, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1305-6001 để lấy đồ trong 30 giây không cần xếp hàng!"
+    },
+    "latency_ms": 1008.54
+  },
+  {
+    "step": 2,
+    "query": "Tôi là học viên SV2026001. Hãy đặt trước giúp tôi 1 suất Bún chả ở Bếp 2 vào lúc 13:05 và đóng hộp mang về phòng tự học (takeaway).",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+    "output": "🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n- 🎫 **Mã E-Ticket FastPass:** `FASTPASS-BEP_2-1305-6001`\n- 👤 **Học viên:** Nguyễn Văn An (SV2026001)\n- 🍽️ **Bếp phục vụ:** Bếp 2 (Bún mì & Healthy)\n- 🍱 **Món ăn:** Bún chả\n- ⏱️ **Khung giờ nhận đồ:** **13:05**\n- 📦 **Hình thức:** Mang về phòng tự học (Takeaway box)\n- 💳 **Xử lý vé/thanh toán:** Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: 4/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công).\n\n👉 **Hướng dẫn:** Đúng 13:05, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1305-6001 để lấy đồ trong 30 giây không cần xếp hàng!",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "student_info": {
+        "full_name": "Nguyễn Văn An",
+        "cohort": "AI-K4A",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4A-SV2026001",
+        "total_punches": 30,
+        "remaining_punches": 4,
+        "ticket_status": "HỢP LỆ (Còn 5 lượt bấm lỗ)",
+        "payment_method": "Vé tháng - Sắp hết lượt, cần gia hạn tháng tới"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 1557.24
+  },
+  {
+    "step": 2,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "order_meal_fastpass",
+    "arguments": {
+      "dining_option": "takeaway",
+      "kitchen_id": "bep_2",
+      "meal_item": "Bún chả Hà Nội than hoa",
+      "pickup_time": "13:10",
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "fastpass_code": "FASTPASS-BEP_2-1310-6001",
+      "student_id": "SV2026001",
+      "student_name": "Nguyễn Văn An",
+      "kitchen": "Bếp 2 (Bún mì & Healthy)",
+      "meal_item": "Bún chả Hà Nội than hoa",
+      "pickup_time": "13:10",
+      "dining_option": "Mang về phòng tự học (Takeaway box)",
+      "ticket_processing": "Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: 3/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công).",
+      "payment_status": "Đã thanh toán (Vé tháng)",
+      "pickup_instructions": "Đúng 13:10, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1310-6001 để lấy đồ trong 30 giây không cần xếp hàng!"
+    },
+    "latency_ms": 18599.97
+  },
+  {
+    "step": 3,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+    "output": "🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n- 🎫 **Mã E-Ticket FastPass:** `FASTPASS-BEP_2-1310-6001`\n- 👤 **Học viên:** Nguyễn Văn An (SV2026001)\n- 🍽️ **Bếp phục vụ:** Bếp 2 (Bún mì & Healthy)\n- 🍱 **Món ăn:** Bún chả Hà Nội than hoa\n- ⏱️ **Khung giờ nhận đồ:** **13:10**\n- 📦 **Hình thức:** Mang về phòng tự học (Takeaway box)\n- 💳 **Xử lý vé/thanh toán:** Đã trừ 1 lượt vé tháng trên hệ thống điện tử. Số lượt còn lại: 3/30 (Chủ bếp chỉ cần quẹt mã xác nhận, không cần bấm lỗ thủ công).\n\n👉 **Hướng dẫn:** Đúng 13:10, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1310-6001 để lấy đồ trong 30 giây không cần xếp hàng!",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Nhà ăn VinLab mở cửa lúc mấy giờ, sức chứa bao nhiêu và có những bếp nào?",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (openai/gpt-oss-20b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Nhà ăn VinLab mở cửa lúc **13:00 – 14:00** (giờ trưa duy nhất).  \n- **Sức chứa**: 500 chỗ ngồi (điều kiện có tới 1.000 học viên tan học cùng lúc).  \n- **Hai bếp phục vụ**:  \n  1. **Bếp 1** – Cơm phần truyền thống (cơm sườn nướng, cơm gà xối mỡ, cá kho tộ).  \n  2. **Bếp 2** – Bún mì & Healthy (bún chả than hoa, mì gà tần, cơm Eat Clean).",
+    "latency_ms": 982.78
+  },
+  {
+    "step": 1,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số SV9999999.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "preferred_kitchen": "bep_1",
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "student_id": "SV9999999",
+      "message": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số."
+    },
+    "latency_ms": 789.05
+  },
+  {
+    "step": 2,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số SV9999999.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (openai/gpt-oss-20b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "",
+    "latency_ms": 1734.76
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (openai/gpt-oss-20b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "",
+    "latency_ms": 1483.01
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "student_id": "SV9999999",
+      "message": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số."
+    },
+    "latency_ms": 1241.88
+  },
+  {
+    "step": 2,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "student_info": {
+        "full_name": "Nguyễn Văn An",
+        "cohort": "AI-K4A",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4A-SV2026001",
+        "total_punches": 30,
+        "remaining_punches": 5,
+        "ticket_status": "HỢP LỆ (Còn 5 lượt bấm lỗ)",
+        "payment_method": "Vé tháng - Sắp hết lượt, cần gia hạn tháng tới"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 2595.74
+  },
+  {
+    "step": 2,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "order_meal_fastpass",
+    "arguments": {
+      "dining_option": "takeaway",
+      "kitchen_id": "bep_2",
+      "meal_item": "Bún chả Hà Nội than hoa",
+      "pickup_time": "13:10",
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "fastpass_code": "FASTPASS-BEP_2-1310-6001",
+      "student_id": "SV2026001",
+      "student_name": "Nguyễn Văn An",
+      "kitchen": "Bếp 2 (Bún mì & Healthy)",
+      "meal_item": "Bún chả Hà Nội than hoa",
+      "pickup_time": "13:10",
+      "dining_option": "Mang về phòng tự học (Takeaway box)",
+      "ticket_processing": "Vé tháng hợp lệ (còn 5/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công).",
+      "payment_status": "Vé tháng (còn 5 lượt)",
+      "pickup_instructions": "Đúng 13:10, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1310-6001 để quét nhận đồ trong 30 giây (quét xong trừ lượt, không cần xếp hàng)!"
+    },
+    "latency_ms": 1388.79
+  },
+  {
+    "step": 3,
+    "query": "Tôi là học viên SV2026001, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+    "output": "🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n- 🎫 **Mã E-Ticket FastPass:** `FASTPASS-BEP_2-1310-6001`\n- 👤 **Học viên:** Nguyễn Văn An (SV2026001)\n- 🍽️ **Bếp phục vụ:** Bếp 2 (Bún mì & Healthy)\n- 🍱 **Món ăn:** Bún chả Hà Nội than hoa\n- ⏱️ **Khung giờ nhận đồ:** **13:10**\n- 📦 **Hình thức:** Mang về phòng tự học (Takeaway box)\n- 💳 **Xử lý vé/thanh toán:** Vé tháng hợp lệ (còn 5/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công).\n\n👉 **Hướng dẫn:** Đúng 13:10, hãy đến CỬA FAST-TRACK CỦA BẾP 2 (BÚN MÌ & HEALTHY), xuất trình mã FASTPASS-BEP_2-1310-6001 để quét nhận đồ trong 30 giây (quét xong trừ lượt, không cần xếp hàng)!",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số 2A202602840.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 1013.64
+  },
+  {
+    "step": 2,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số 2A202602840.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Groq (qwen/qwen3.8-27b) phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn **Trần Tuấn Tú** (MSSV: 2A202602840), đây là kết quả tra cứu chi tiết về tình trạng nhà ăn VinLab và thẻ vé của bạn:\n\n### 🎫 THÔNG TIN THẺ VÉ CỦA BẠN\n- **Loại thẻ:** Vé tháng (VE_THANG) - Thẻ ID: `PASS-K4B-2A202602840`\n- **Trạng thái:** ✅ **HỢP LỆ**\n- **Số lượt còn lại:** **18 lượt** (trên tổng 30 lượt)\n- **Thanh toán:** Vé tháng đã trả trước. Hệ thống sẽ **tự động trừ lượt điện tử** khi bạn đặt suất ăn (không cần chủ bấm lỗ thủ công).\n\n### 🍽️ TÌNH TRẠNG NHÀ ĂN VINLAB (Khung giờ 13h00 - 14h00)\n- **Sức chứa:** 500 chỗ ngồi\n- **Tải hiện tại:** ⚠️ **CAO ĐIỂM (~90% công suất)**\n- **Ghế trống:** Ước tính chỉ còn khoảng **30 - 40 ghế** rải rác.\n- **Cảnh báo:** Nhà ăn đang gần kín chỗ do 1.000 học viên cùng tan ca sáng.\n\n### 📊 TẢI CỦA 2 BẾP & THỰC ĐƠN HÔM NAY\n| Bếp | Trạng thái | Thời gian chờ | Thực đơn nổi bật |\n| :--- | :--- | :--- | :--- |\n| **Bếp 1** (Cơm phần truyền thống) | 🔴 **ÙN Ứ CAO ĐIỂM** | 15 - 25 phút | Cơm sườn nướng mật ong (35k), Cơm gà xối mỡ (35k), Cơm cá hồi kho tộ (40k - *Sắp hết*) |\n| **Bếp 2** (Bún mì & Healthy) | 🟢 **THÔNG THOÁNG** | Dưới 5 phút | Bún chả Hà Nội than hoa (35k), Mì gà tần thảo mộc (40k), Cơm Eat Clean ức gà (40k) |\n\n### 💡 GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG\n1. **Về bếp:** Bếp 1 đang rất đông và ùn ứ. Nếu bạn muốn ăn nhanh để kịp nghỉ trưa, hệ thống **khuyên dùng Bếp 2** (thông thoáng, chờ dưới 5 phút).\n2. **Về hình thức ăn:** Do nhà ăn đã đạt ~90% công suất (gần kín chỗ), hệ thống **khuyến nghị bạn chọn hình thức TAKEAWAY (đóng hộp)** mang về phòng tự học. Cách này giúp bạn không phải xếp hàng chờ tìm ghế, đảm bảo trọn vẹn 1 tiếng nghỉ trưa.\n\nNếu bạn có nhu cầu **đặt trước suất ăn** và nhận mã FastPass để nhận đồ nhanh trong 30 giây tại làn ưu tiên, hãy cho tôi biết bạn muốn chọn món gì và hình thức ăn nhé! 😊",
+    "latency_ms": 2307.19
+  },
+  {
+    "step": 1,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số SV9999999.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "student_id": "SV9999999",
+      "message": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số."
+    },
+    "latency_ms": 487.05
+  },
+  {
+    "step": 2,
+    "query": "Hãy kiểm tra tình trạng tải nhà ăn và thông tin thẻ vé của học viên mã số SV9999999.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "student_id": "SV9999999",
+      "message": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số."
+    },
+    "latency_ms": 1220.12
+  },
+  {
+    "step": 2,
+    "query": "Tôi là học viên SV9999999, hãy kiểm tra xem Bếp 1 hay Bếp 2 đang thông thoáng hơn và đặt luôn cho tôi 1 suất ở bếp vắng đó lúc 13:10 mang về phòng học để kịp nghỉ trưa nhé.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Không tìm thấy dữ liệu học viên mã 'SV9999999' trong hệ thống VinLab Canteen. Vui lòng kiểm tra lại mã số.",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 2017.1
+  },
+  {
+    "step": 2,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 456.23
+  },
+  {
+    "step": 3,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 653.44
+  },
+  {
+    "step": 4,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 695.94
+  },
+  {
+    "step": 5,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tổng hợp kết quả cuối cùng từ Observation.",
+    "output": "Đã nhận phản hồi: {\"status\": \"SUCCESS\", \"student_id\": \"2A202602840\", \"student_info\": {\"full_name\": \"Trần Tuấn Tú\", \"cohort\": \"K4B (Lớp Chiều, học 9h-18h)\", \"ticket_type\": \"VE_THANG\", \"card_id\": \"PASS-K4B-2A202602840\", \"total_punches\": 30, \"remaining_punches\": 18, \"ticket_status\": \"HỢP LỆ (Còn 18 lượt bấm lỗ)\", \"payment_method\": \"Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)\"}, \"canteen_capacity\": {\"total_seats\": 500, \"occupancy_level\": \"CAO ĐIỂM (~90% công suất)\", \"seats_status\": \"Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)\", \"capacity_alert\": \"CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!\", \"measurement_source\": \"Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất\", \"peak_window\": \"13:00 - 14:00 (1000 học viên cùng tan ca sáng)\"}, \"kitchens_traffic\": {\"bep_1\": {\"name\": \"Bếp 1 (Cơm phần truyền thống)\", \"traffic_level\": \"ÙN Ứ CAO ĐIỂM\", \"est_wait_minutes\": 20, \"status\": \"RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)\", \"today_menu\": [{\"name\": \"Cơm sườn nướng mật ong\", \"price\": \"35.000đ\", \"status\": \"CÒN HÀNG\"}, {\"name\": \"Cơm gà xối mỡ giòn rụm\", \"price\": \"35.000đ\", \"status\": \"CÒN HÀNG\"}, {\"name\": \"Cơm cá hồi kho tộ\", \"price\": \"40.000đ\", \"status\": \"SẮP HẾT\"}]}, \"bep_2\": {\"name\": \"Bếp 2 (Bún mì & Healthy)\", \"traffic_level\": \"THÔNG THOÁNG\", \"est_wait_minutes\": 4, \"status\": \"THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)\", \"today_menu\": [{\"name\": \"Bún chả Hà Nội than hoa\", \"price\": \"35.000đ\", \"status\": \"CÒN HÀNG\"}, {\"name\": \"Mì gà tần thảo mộc nạp năng lượng\", \"price\": \"40.000đ\", \"status\": \"CÒN HÀNG\"}, {\"name\": \"Suất cơm Eat Clean ức gà sốt bơ đậu phộng\", \"price\": \"40.000đ\", \"status\": \"CÒN HÀNG\"}]}}, \"dispatcher_advice\": \"GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!\"}",
+    "latency_ms": 10.0
+  },
+  {
+    "step": 1,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "check_canteen_and_tickets",
+    "arguments": {
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "2A202602840",
+      "student_info": {
+        "full_name": "Trần Tuấn Tú",
+        "cohort": "K4B (Lớp Chiều, học 9h-18h)",
+        "ticket_type": "VE_THANG",
+        "card_id": "PASS-K4B-2A202602840",
+        "total_punches": 30,
+        "remaining_punches": 18,
+        "ticket_status": "HỢP LỆ (Còn 18 lượt bấm lỗ)",
+        "payment_method": "Vé tháng đã trả trước - Hệ thống tự động trừ lượt điện tử (không cần chủ bấm lỗ thủ công)"
+      },
+      "canteen_capacity": {
+        "total_seats": 500,
+        "occupancy_level": "CAO ĐIỂM (~90% công suất)",
+        "seats_status": "Gần kín chỗ (ước tính chỉ còn khoảng 30 - 40 ghế rải rác)",
+        "capacity_alert": "CẢNH BÁO: Nhà ăn đang ở mức tải cao điểm (~90% ghế). Khuyến nghị học viên chọn TAKEAWAY (đóng hộp) mang về phòng tự học để không phải chờ ghế!",
+        "measurement_source": "Dữ liệu ước lượng tự động qua cảm biến lối vào & số lượt quét vé 15 phút gần nhất",
+        "peak_window": "13:00 - 14:00 (1000 học viên cùng tan ca sáng)"
+      },
+      "kitchens_traffic": {
+        "bep_1": {
+          "name": "Bếp 1 (Cơm phần truyền thống)",
+          "traffic_level": "ÙN Ứ CAO ĐIỂM",
+          "est_wait_minutes": 20,
+          "status": "RẤT ĐÔNG (Xếp hàng dài, ước tính chờ 15 - 25 phút)",
+          "today_menu": [
+            {
+              "name": "Cơm sườn nướng mật ong",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm gà xối mỡ giòn rụm",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Cơm cá hồi kho tộ",
+              "price": "40.000đ",
+              "status": "SẮP HẾT"
+            }
+          ]
+        },
+        "bep_2": {
+          "name": "Bếp 2 (Bún mì & Healthy)",
+          "traffic_level": "THÔNG THOÁNG",
+          "est_wait_minutes": 4,
+          "status": "THÔNG THOÁNG (Ước tính chờ dưới 5 phút - KHUYÊN DÙNG ĐỂ KỊP NGHỈ TRƯA)",
+          "today_menu": [
+            {
+              "name": "Bún chả Hà Nội than hoa",
+              "price": "35.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Mì gà tần thảo mộc nạp năng lượng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            },
+            {
+              "name": "Suất cơm Eat Clean ức gà sốt bơ đậu phộng",
+              "price": "40.000đ",
+              "status": "CÒN HÀNG"
+            }
+          ]
+        }
+      },
+      "dispatcher_advice": "GỢI Ý TỪ HỆ THỐNG PHÂN LUỒNG: Bếp 1 đang ở mức tải cao điểm ùn ứ (ước tính chờ 15 - 25 phút). Bếp 2 đang thông thoáng (ước tính chờ dưới 5 phút). Nhà ăn gần kín chỗ (~90%), nên chọn 'takeaway' (đóng hộp) để đem về phòng tự học ăn và nghỉ ngơi trọn vẹn 1 tiếng!"
+    },
+    "latency_ms": 1576.2
+  },
+  {
+    "step": 2,
+    "query": "Kiểm tra tình hình bếp cho tôi",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Yêu cầu ban đầu chỉ là tra cứu thông tin, không yêu cầu đặt món. Tôi đưa ra câu trả lời cuối cùng và không gọi thêm công cụ.",
+    "output": "Tôi đã hoàn thành kiểm tra thông tin theo yêu cầu của bạn. Tình trạng nhà ăn, hai bếp và thông tin vé học viên đã được tra cứu đầy đủ ở bước trên. Nếu cần hỗ trợ đặt suất ăn FastPass để kịp giờ nghỉ trưa, bạn hãy cho tôi biết nhé!",
+    "latency_ms": 533.05
+  },
+  {
+    "step": 1,
+    "query": "Đặt cho tôi 1 suất cơm sườn ở Bếp 1 lúc 13:15 mang về",
+    "action_type": "TOOL_EXECUTION",
+    "tool_name": "order_meal_fastpass",
+    "arguments": {
+      "dining_option": "takeaway",
+      "kitchen_id": "bep_1",
+      "meal_item": "Cơm sườn nướng mật ong",
+      "pickup_time": "13:15",
+      "student_id": "2A202602840"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "fastpass_code": "FASTPASS-BEP_1-1315-2840",
+      "student_id": "2A202602840",
+      "student_name": "Trần Tuấn Tú",
+      "kitchen": "Bếp 1 (Cơm phần truyền thống)",
+      "meal_item": "Cơm sườn nướng mật ong",
+      "pickup_time": "13:15",
+      "dining_option": "Mang về phòng tự học (Takeaway box)",
+      "ticket_processing": "Vé tháng hợp lệ (còn 18/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công).",
+      "payment_status": "Vé tháng (còn 18 lượt)",
+      "pickup_instructions": "Đúng 13:15, hãy đến CỬA FAST-TRACK CỦA BẾP 1 (CƠM PHẦN TRUYỀN THỐNG), xuất trình mã FASTPASS-BEP_1-1315-2840 để quét nhận đồ trong 30 giây (quét xong trừ lượt, không cần xếp hàng)!"
+    },
+    "latency_ms": 1126.01
+  },
+  {
+    "step": 2,
+    "query": "Đặt cho tôi 1 suất cơm sườn ở Bếp 1 lúc 13:15 mang về",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Đã đặt trước suất ăn và cấp mã FastPass thành công. Trả về kết quả xác nhận cho học viên.",
+    "output": "🎉 **ĐẶT SUẤT ĂN FASTPASS THÀNH CÔNG!**\n\n- 🎫 **Mã E-Ticket FastPass:** `FASTPASS-BEP_1-1315-2840`\n- 👤 **Học viên:** Trần Tuấn Tú (2A202602840)\n- 🍽️ **Bếp phục vụ:** Bếp 1 (Cơm phần truyền thống)\n- 🍱 **Món ăn:** Cơm sườn nướng mật ong\n- ⏱️ **Khung giờ nhận đồ:** **13:15**\n- 📦 **Hình thức:** Mang về phòng tự học (Takeaway box)\n- 💳 **Xử lý vé/thanh toán:** Vé tháng hợp lệ (còn 18/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công).\n\n👉 **Hướng dẫn:** Đúng 13:15, hãy đến CỬA FAST-TRACK CỦA BẾP 1 (CƠM PHẦN TRUYỀN THỐNG), xuất trình mã FASTPASS-BEP_1-1315-2840 để quét nhận đồ trong 30 giây (quét xong trừ lượt, không cần xếp hàng)!",
+    "latency_ms": 10.0
   }
 ]

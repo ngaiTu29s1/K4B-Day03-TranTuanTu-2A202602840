@@ -38,10 +38,11 @@ class MockOfflineProvider(BaseLLMProvider):
         # Tách câu hỏi thực tế của người dùng nếu đang ở trong chuỗi ReAct đa bước
         user_query = prompt
         is_subsequent_step = False
-        if "Yêu cầu ban đầu của học viên:" in prompt:
+        if "Yêu cầu ban đầu của học viên" in prompt or "[Kết quả Observation từ MCP Server]" in prompt:
             is_subsequent_step = True
             try:
-                user_query = prompt.split("Yêu cầu ban đầu của học viên:")[1].split("\n")[0].strip()
+                part = prompt.split("Yêu cầu ban đầu của học viên")[1]
+                user_query = part.split("\n\n")[0].split(":")[-1].strip()
             except Exception:
                 user_query = prompt
 
@@ -220,8 +221,15 @@ class GeminiProvider(BaseLLMProvider):
                 }
 
         except Exception as e:
-            print(f"⚠️ [Gemini API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            err_str = str(e)
+            print(f"⚠️ [Gemini API Warning]: Không thể kết nối live API ({err_str}). Tự động fallback về Mock.")
+            is_quota = "429" in err_str or "quota" in err_str.lower() or "resource_exhausted" in err_str.lower()
+            mock_res = MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            if is_quota:
+                mock_res["thought"] = f"⚠️ [CẢNH BÁO QUOTA 429]: Gemini API ({self.model_name}) đã chạm giới hạn Quota. Hệ thống tự động chuyển sang Fallback Mock Offline để tiếp tục xử lý."
+                if mock_res.get("type") == "text":
+                    mock_res["content"] = f"> ⚠️ **Thông báo:** Model Gemini `{self.model_name}` vừa chạm hạn mức Quota (429 ResourceExhausted). Hệ thống đã tự động Fallback để tiếp tục phục vụ bạn:\n\n" + mock_res.get("content", "")
+            return mock_res
 
 
 class OpenAICompatibleProvider(BaseLLMProvider):
@@ -237,7 +245,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             return f"[{self.provider_name} Error]: Chưa cấu hình API Key trong file .env!"
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=8.0, max_retries=0)
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
@@ -254,7 +262,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+            client = OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=8.0, max_retries=0)
 
             tools = []
             for tool in tools_schema:
@@ -307,8 +315,15 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                     "thought": thought_str
                 }
         except Exception as e:
-            print(f"⚠️ [{self.provider_name} API Warning]: Lỗi kết nối ({str(e)}). Fallback về Mock.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            err_str = str(e)
+            print(f"⚠️ [{self.provider_name} API Warning]: Lỗi API ({err_str}). Fallback về Mock.")
+            is_quota = "429" in err_str or "quota" in err_str.lower() or "rate" in err_str.lower() or "credit" in err_str.lower()
+            mock_res = MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            if is_quota:
+                mock_res["thought"] = f"⚠️ [CẢNH BÁO QUOTA 429]: Provider '{self.provider_name}' ({self.model_name}) đã chạm giới hạn tốc độ/hạn mức (Rate Limit / Quota Exceeded). Hệ thống đã tự động Fallback sang Mock Offline thông minh."
+                if mock_res.get("type") == "text":
+                    mock_res["content"] = f"> ⚠️ **Thông báo hệ thống:** Provider `{self.provider_name}` (`{self.model_name}`) vừa chạm giới hạn Quota / Rate Limit (429). Hệ thống đã tự động Fallback để phục vụ bạn tiếp tục:\n\n" + mock_res.get("content", "")
+            return mock_res
 
 
 class OpenAIProvider(OpenAICompatibleProvider):

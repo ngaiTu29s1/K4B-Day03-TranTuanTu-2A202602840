@@ -223,8 +223,12 @@ def execute_order_meal_fastpass(
     # Xử lý theo loại vé
     if student.get("ticket_type") == "VE_THANG":
         remaining = student.get("remaining_punches", 0)
-        ticket_action = f"Vé tháng hợp lệ (còn {remaining}/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công)."
-        payment_info = f"Vé tháng (còn {remaining} lượt)"
+        if remaining > 0:
+            ticket_action = f"Vé tháng hợp lệ (còn {remaining}/30 lượt). Quẹt mã tại quầy để hệ thống tự động trừ 1 lượt ăn (không cần bấm lỗ thủ công)."
+            payment_info = f"Vé tháng (còn {remaining} lượt)"
+        else:
+            ticket_action = "CẢNH BÁO: Thẻ vé tháng của bạn ĐÃ HẾT LƯỢT BẤM (0/30). Vui lòng thanh toán 35.000đ khi nhận đồ tại quầy hoặc gia hạn thẻ mới."
+            payment_info = "35.000đ (thanh toán khi nhận do hết lượt vé)"
     else:
         ticket_action = "Vé ngày: Thanh toán 35.000đ khi nhận đồ hoặc quét QR tại quầy bếp."
         payment_info = "35.000đ (thanh toán khi nhận đồ)"
